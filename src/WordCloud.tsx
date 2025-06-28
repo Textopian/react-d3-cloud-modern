@@ -62,7 +62,7 @@ function WordCloud({
   onWordMouseOver,
   onWordMouseOut,
 }: WordCloudProps) {
-  const elementRef = useRef<ReactFauxDom.Element>();
+  const elementRef = useRef<ReactFauxDom.Element | null>(null);
 
   if (!elementRef.current) {
     elementRef.current = ReactFauxDom.createElement('div');
