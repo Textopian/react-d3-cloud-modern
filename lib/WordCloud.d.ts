@@ -26,6 +26,6 @@ type WordCloudProps = {
     onWordMouseOver?: (this: BaseType, event: any, d: Word) => void;
     onWordMouseOut?: (this: BaseType, event: any, d: Word) => void;
 };
-declare function WordCloud({ data, width, height, font, fontStyle, fontWeight, fontSize, rotate, spiral, padding, random, fill, onWordClick, onWordMouseOver, onWordMouseOut, }: WordCloudProps): React.ReactElement<any, string | React.JSXElementConstructor<any>>;
+declare function WordCloud({ data, width, height, font, fontStyle, fontWeight, fontSize, rotate, spiral, padding, random, fill, onWordClick, onWordMouseOver, onWordMouseOut, }: WordCloudProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>;
 declare const _default: React.MemoExoticComponent<typeof WordCloud>;
 export default _default;
