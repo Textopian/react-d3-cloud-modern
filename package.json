@@ -1,13 +1,19 @@
 {
   "name": "react-d3-cloud-modern",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A word cloud component using d3-cloud",
   "license": "MIT",
   "author": "cph",
   "homepage": "https://github.com/carlosalvidrez/react-d3-cloud-modern",
-  "repository": "carlosalvidrez/react-d3-cloud-modern",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carlosalvidrez/react-d3-cloud-modern.git"
+  },
   "bugs": {
     "url": "https://github.com/carlosalvidrez/react-d3-cloud-modern/issues"
+  },
+  "overrides": {
+    "form-data": "^3.0.4"
   },
   "exports": {
     "import": "./lib/esm/index.js",
