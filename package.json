@@ -1,6 +1,6 @@
 {
   "name": "react-d3-cloud-modern",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A word cloud component using d3-cloud",
   "license": "MIT",
   "author": "cph",
@@ -13,7 +13,8 @@
     "url": "https://github.com/carlosalvidrez/react-d3-cloud-modern/issues"
   },
   "overrides": {
-    "form-data": "^3.0.4"
+    "form-data": "^3.0.4",
+    "canvas": "^3.2.1"
   },
   "exports": {
     "import": "./lib/esm/index.js",
@@ -75,7 +76,7 @@
     "@typescript-eslint/parser": "^4.29.3",
     "babel-eslint": "^10.1.0",
     "babel-plugin-typescript-to-proptypes": "^1.4.2",
-    "canvas": "^2.8.0",
+    "canvas": "^3.2.1",
     "cross-env": "^7.0.3",
     "eslint": "^7.32.0",
     "eslint-config-yoctol": "^0.26.2",

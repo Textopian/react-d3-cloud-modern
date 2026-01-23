@@ -210,3 +210,9 @@ npm test
 
 MIT © [Yoctol](https://github.com/Yoctol/react-d3-cloud) 
 | [carlosalvidrez](https://github.com/carlosalvidrez/react-d3-cloud-modern)
+
+## Changelog
+
+### 1.0.6
+
+- Upgrade `canvas` to `^3.2.1` to address a security vulnerability.
