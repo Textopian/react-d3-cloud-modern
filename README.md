@@ -173,21 +173,44 @@ function App() {
 );
 ```
 
-## Build
+## NPM Commands
+
+### Install dependencies
+
+```sh
+npm install
+```
+
+### Build
 
 ```sh
 npm run build
 ```
 
-## Test
+This will build both CommonJS (`lib/`) and ESM (`lib/esm/`) versions.
 
-### pre-install
+### Run Tests
+
+```sh
+npm test
+```
+
+### Publish to NPM
+
+```sh
+npm publish
+```
+
+*(Note: The `prepublishOnly` script will automatically run `npm run build` before publishing.)*
+
+## Development
+
+### Pre-install (for `node-canvas` support)
 
 #### Mac OS X
 
 ```sh
 brew install pkg-config cairo pango libpng jpeg giflib librsvg
-npm install
 ```
 
 #### Ubuntu and Other Debian Based Systems
@@ -195,16 +218,9 @@ npm install
 ```sh
 sudo apt-get update
 sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++
-npm install
 ```
 
 For more details, please check out [Installation guides](https://github.com/Automattic/node-canvas/wiki) at node-canvas wiki.
-
-### Run Tests
-
-```sh
-npm test
-```
 
 ## License
 
