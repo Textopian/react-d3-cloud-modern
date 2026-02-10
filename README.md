@@ -5,9 +5,20 @@
 
 A word cloud react component built with [d3-cloud](https://github.com/jasondavies/d3-cloud).
 
-Forked from [react-d3-cloud] in order to modernize its dependency on libraries with multiple high-level vulnerabilities.
+A modern fork of [react-d3-cloud](https://github.com/Yoctol/react-d3-cloud) with updated dependencies to address security vulnerabilities and provide React 19 compatibility.
 
 ![image](https://cloud.githubusercontent.com/assets/6868283/20619528/fa83334c-b32f-11e6-81dd-6fe4fa6c52d9.png)
+
+## Features
+
+- 🎨 Interactive word clouds with customizable styling
+- ⚡ Optimized with React.memo and deep equality checks
+- 🔄 Support for React 16.8+, 17, 18, and 19
+- 📦 Dual module support (CommonJS and ESM)
+- 🎯 Full TypeScript support with type definitions
+- 🖱️ Mouse event handlers (click, mouseover, mouseout)
+- 🎲 Customizable word positioning, rotation, and sizing algorithms
+- 🛡️ Security-focused with regular dependency updates
 
 ## Installation
 
@@ -229,15 +240,40 @@ MIT © [Yoctol](https://github.com/Yoctol/react-d3-cloud)
 
 ## Changelog
 
-### 1.0.8
+### 1.0.8 (Latest)
 
-- Update `@modelcontextprotocol/sdk` to `1.26.0`.
-- Update `eslint` to `^9.26.0`.
+- Update `@modelcontextprotocol/sdk` to `1.26.0`
+- Update `eslint` to `^9.26.0`
 
 ### 1.0.7
 
-- Chore: bump version for dependency updates.
+- Security: Dependency updates to address vulnerabilities
 
 ### 1.0.6
 
-- Upgrade `canvas` to `^3.2.1` to address a security vulnerability.
+- Security: Upgrade `canvas` to `^3.2.1` to address security vulnerability
+
+### 1.0.5
+
+- Update `js-yaml` to address security vulnerability
+
+### 1.0.4
+
+- React 19 compatibility improvements
+
+### 1.0.3
+
+- Update `@testing-library/react` to v16.3.0
+- Update `@types/react` to v19.1.8
+- Fix Jest configuration
+
+### 1.0.2
+
+- Fix TypeScript error in useRef hook
+- Improve type safety
+
+### 1.0.1
+
+- Initial release as fork
+- Modernized dependencies
+- TypeScript improvements
