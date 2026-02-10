@@ -1,6 +1,6 @@
 {
   "name": "react-d3-cloud-modern",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "A word cloud component using d3-cloud",
   "license": "MIT",
   "author": "cph",

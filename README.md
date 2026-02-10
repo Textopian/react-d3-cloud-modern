@@ -213,6 +213,15 @@ MIT © [Yoctol](https://github.com/Yoctol/react-d3-cloud)
 
 ## Changelog
 
+### 1.0.8
+
+- Update `@modelcontextprotocol/sdk` to `1.26.0`.
+- Update `eslint` to `^9.26.0`.
+
+### 1.0.7
+
+- Chore: bump version for dependency updates.
+
 ### 1.0.6
 
 - Upgrade `canvas` to `^3.2.1` to address a security vulnerability.
