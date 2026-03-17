@@ -240,12 +240,12 @@ MIT © [Yoctol](https://github.com/Yoctol/react-d3-cloud)
 
 ## Changelog
 
-### 1.0.8 (Latest)
+### 1.0.12 (Latest)
 
-- Update `@modelcontextprotocol/sdk` to `1.26.0`
-- Update `eslint` to `^9.26.0`
+- Security: Address `flatted` and `@tootallnate/once` vulnerabilities via dependency updates and overrides.
+- Housekeeping: Update internal dependencies via `npm audit fix`.
 
-### 1.0.7
+### 1.0.11
 
 - Security: Dependency updates to address vulnerabilities
 

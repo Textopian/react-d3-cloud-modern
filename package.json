@@ -1,6 +1,6 @@
 {
   "name": "react-d3-cloud-modern",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "A word cloud component using d3-cloud",
   "license": "MIT",
   "author": "cph",
@@ -14,7 +14,8 @@
   },
   "overrides": {
     "form-data": "^3.0.4",
-    "canvas": "^3.2.1"
+    "canvas": "^3.2.1",
+    "@tootallnate/once": "^3.0.1"
   },
   "exports": {
     "import": "./lib/esm/index.js",
