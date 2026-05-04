@@ -236,11 +236,16 @@ For more details, please check out [Installation guides](https://github.com/Auto
 ## License
 
 MIT © [Yoctol](https://github.com/Yoctol/react-d3-cloud) 
-| [carlosalvidrez](https://github.com/carlosalvidrez/react-d3-cloud-modern)
+| [Textopian](https://github.com/Textopian/react-d3-cloud-modern)
 
 ## Changelog
 
-### 1.0.12 (Latest)
+### 1.0.13 (Latest)
+
+- Security: Bump transitive devDependencies to clear Dependabot alerts (`brace-expansion`, `lodash`, `picomatch`, `yaml`). Published tarball is unchanged for consumers — these are dev-only patches.
+- Maintenance: Repository moved to the `Textopian` organization; package metadata updated.
+
+### 1.0.12
 
 - Security: Address `flatted` and `@tootallnate/once` vulnerabilities via dependency updates and overrides.
 - Housekeeping: Update internal dependencies via `npm audit fix`.

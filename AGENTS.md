@@ -290,7 +290,7 @@ npm list --depth=0
 ## Links & Resources
 
 - **NPM Package:** https://www.npmjs.com/package/react-d3-cloud-modern
-- **GitHub Repository:** https://github.com/carlosalvidrez/react-d3-cloud-modern
+- **GitHub Repository:** https://github.com/Textopian/react-d3-cloud-modern
 - **Original Project:** https://github.com/Yoctol/react-d3-cloud
 - **D3 Cloud Documentation:** https://github.com/jasondavies/d3-cloud
 - **Demo:** https://codesandbox.io/embed/react-d3-cloud-demo-forked-50wzl
@@ -299,7 +299,7 @@ npm list --depth=0
 
 **Author:** Carlos Alvidrez (cph)
 **License:** MIT
-**Issues:** https://github.com/carlosalvidrez/react-d3-cloud-modern/issues
+**Issues:** https://github.com/Textopian/react-d3-cloud-modern/issues
 
 ---
 
