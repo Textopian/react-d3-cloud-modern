@@ -240,7 +240,13 @@ MIT © [Yoctol](https://github.com/Yoctol/react-d3-cloud)
 
 ## Changelog
 
-### 1.0.13 (Latest)
+### 1.0.14 (Latest)
+
+- Security: Force transitive `fast-uri` to `3.1.2` and
+  `@babel/plugin-transform-modules-systemjs` to `7.29.4` to clear
+  CVE-2026-6321, CVE-2026-6322, and CVE-2026-44728.
+
+### 1.0.13
 
 - Security: Bump transitive devDependencies to clear Dependabot alerts (`brace-expansion`, `lodash`, `picomatch`, `yaml`). Published tarball is unchanged for consumers — these are dev-only patches.
 - Maintenance: Repository moved to the `Textopian` organization; package metadata updated.

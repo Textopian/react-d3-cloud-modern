@@ -1,6 +1,6 @@
 {
   "name": "react-d3-cloud-modern",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "A word cloud component using d3-cloud",
   "license": "MIT",
   "author": "cph",
@@ -13,9 +13,11 @@
     "url": "https://github.com/Textopian/react-d3-cloud-modern/issues"
   },
   "overrides": {
-    "form-data": "^3.0.4",
+    "@babel/plugin-transform-modules-systemjs": "7.29.4",
+    "@tootallnate/once": "^3.0.1",
     "canvas": "^3.2.1",
-    "@tootallnate/once": "^3.0.1"
+    "fast-uri": "3.1.2",
+    "form-data": "^3.0.4"
   },
   "exports": {
     "import": "./lib/esm/index.js",
