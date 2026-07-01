@@ -212,7 +212,7 @@ npm test
 npm publish
 ```
 
-*(Note: The `prepublishOnly` script will automatically run `npm run build` before publishing.)*
+_(Note: The `prepublishOnly` script will automatically run `npm run build` before publishing.)_
 
 ## Development
 
@@ -235,12 +235,18 @@ For more details, please check out [Installation guides](https://github.com/Auto
 
 ## License
 
-MIT © [Yoctol](https://github.com/Yoctol/react-d3-cloud) 
+MIT © [Yoctol](https://github.com/Yoctol/react-d3-cloud)
 | [Textopian](https://github.com/Textopian/react-d3-cloud-modern)
 
 ## Changelog
 
-### 1.0.14 (Latest)
+### 1.0.15 (Latest)
+
+- Security: Raise `@babel/core` to the fixed Babel 7 range and force
+  transitive `form-data`, `ws`, and `js-yaml` versions above current
+  advisory ranges.
+
+### 1.0.14
 
 - Security: Force transitive `fast-uri` to `3.1.2` and
   `@babel/plugin-transform-modules-systemjs` to `7.29.4` to clear
