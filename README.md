@@ -240,7 +240,18 @@ MIT © [Yoctol](https://github.com/Yoctol/react-d3-cloud)
 
 ## Changelog
 
-### 1.0.15 (Latest)
+### 1.0.16 (Latest)
+
+- Security: Clear three high-severity Dependabot alerts by forcing transitive
+  `brace-expansion` to `^1.1.18` (GHSA-3jxr-9vmj-r5cp, GHSA-mh99-v99m-4gvg,
+  GHSA-rgw5-rvv9-x895), `fast-uri` to `3.1.5` (GHSA-v2hh-gcrm-f6hx,
+  GHSA-7p8r-x3mc-p8w7, GHSA-4c8g-83qw-93j6), and `js-yaml` to `^3.15.1`
+  (GHSA-5p4m-2wfm-xmqj). The previous `fast-uri` and `js-yaml` overrides had
+  themselves fallen into the advisory ranges.
+- Published tarball is unchanged for consumers — all three are dev-only
+  transitive dependencies and `npm audit --omit=dev` was already clean.
+
+### 1.0.15
 
 - Security: Raise `@babel/core` to the fixed Babel 7 range and force
   transitive `form-data`, `ws`, and `js-yaml` versions above current
