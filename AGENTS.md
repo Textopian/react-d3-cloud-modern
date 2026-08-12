@@ -5,7 +5,7 @@ This document provides context and guidelines for AI agents working on the `reac
 ## Project Overview
 
 **Package Name:** `react-d3-cloud-modern`
-**Current Version:** 1.0.8
+**Current Version:** 1.0.16
 **Type:** React component library
 **Purpose:** A modern, security-focused word cloud component for React applications
 
@@ -53,7 +53,7 @@ react-d3-cloud-modern/
 - `typescript@^4.4.2` - Type system
 - `@babel/cli`, `@babel/core` - Build pipeline
 - `jest@^27.0.6` - Testing framework
-- `eslint@^9.26.0` - Linting
+- `eslint@^7.32.0` - Linting (currently skipped; see Known Issues)
 - `canvas@^3.2.1` - Native canvas for SSR (dev dependency)
 
 ## Component Architecture
@@ -122,10 +122,20 @@ This project prioritizes security through:
 3. **Minimal attack surface** - Small, focused codebase with limited dependencies
 
 ### Current Overrides
+
+All are transitive **dev** dependencies. Keep this block in sync with
+`package.json` — it was stale for several releases.
+
 ```json
 "overrides": {
-  "form-data": "^3.0.4",
-  "canvas": "^3.2.1"
+  "@babel/plugin-transform-modules-systemjs": "7.29.4",
+  "@tootallnate/once": "^3.0.1",
+  "brace-expansion": "^1.1.18",
+  "canvas": "^3.2.1",
+  "fast-uri": "3.1.5",
+  "form-data": "^3.0.5",
+  "js-yaml": "^3.15.1",
+  "ws": "^7.5.11"
 }
 ```
 
@@ -199,6 +209,26 @@ The project uses comprehensive TypeScript strict mode:
 7. Bump version (patch for security fixes)
 8. Commit with descriptive message
 
+**Re-check the existing overrides every time.** Advisory ranges widen over
+time, so an override added to *fix* a CVE can later become the thing pinning a
+package to a vulnerable version. In 1.0.16 both `fast-uri` (pinned to exactly
+`3.1.2`) and `js-yaml` (capped at `^3.15.0`) had drifted into the advisory
+ranges they were originally added to escape. Prefer a caret range over an exact
+pin unless an exact pin is genuinely required.
+
+**Pick the smallest in-range target.** Check what the *dependent* actually
+requires before choosing a version — a patched release usually exists inside
+the range already declared, which avoids dragging in a transitive major. For
+1.0.16: `minimatch` wanted `brace-expansion@^1.1.7` (→ `1.1.18`), `ajv@8`
+wanted `fast-uri@^3.0.1` (→ `3.1.5`), and `eslint` wanted `js-yaml@^3.13.1`
+(→ `3.15.1`).
+
+**Check the blast radius before worrying.** `npm audit --omit=dev` tells you
+whether consumers are affected at all. Every alert on this repo so far has been
+dev-only tooling, meaning the published tarball was never at risk and the
+version bump is hygiene rather than a security fix for downstream users. Say so
+in the changelog so downstream repos can prioritize correctly.
+
 #### Adding New Features
 1. Update TypeScript interfaces in `src/WordCloud.tsx`
 2. Implement feature while maintaining memo optimization
@@ -262,6 +292,47 @@ The project uses comprehensive TypeScript strict mode:
    - Update GitHub releases
    - Close related issues
 
+### Ordering
+
+Merge the release PR to `main` *before* publishing. Publishing from a feature
+branch leaves `main` without the released version and makes the `vX.Y.Z` tag
+point at a commit that is not on `main`. Merging first is also what closes the
+Dependabot alerts, which are counted against the default branch.
+
+### Publishing From An Agent Sandbox
+
+Cloud/CI agent containers have **no npm credentials** (`npm whoami` →
+`ENEEDAUTH`, no `~/.npmrc`, no `NPM_TOKEN`), and this repo has **no
+`.github/workflows/`**, so there is no CI release path either. The registry
+itself *is* reachable through the proxy — `npm view`, `npm install`, and
+`npm publish --dry-run` all work. Only auth is missing.
+
+Two ways to close that gap, in order of preference:
+
+1. **Browser-approved login (no token ever pasted into the session).**
+   `npm config get auth-type` is `web`, so:
+
+   ```bash
+   npm login --auth-type=web        # run detached; it prints a URL then polls
+   ```
+
+   It emits `https://www.npmjs.com/login?next=/login/cli/<uuid>`. A maintainer
+   opens that on a machine already signed in to npm and approves; the sandbox
+   receives a 2FA-satisfied token and can publish. The link is single-use and
+   expires when the polling process exits.
+
+   Gotcha: `npm login | head` swallows the URL — the pipe buffers it and the
+   command blocks. Redirect to a file and background it instead:
+   `(npm login --auth-type=web > /tmp/npmlogin.log 2>&1 &)`, then read the log.
+
+   A headless browser in the sandbox does **not** help here. It has no npm
+   session, so it would only render the login form. The approval must come from
+   a browser authenticated as the publishing account.
+
+2. **Maintainer publishes locally.** Standard `npm publish` from a logged-in
+   machine. Use `npm ci --ignore-scripts` if `canvas`'s native build fails —
+   the `prepublishOnly` build needs only Babel and TypeScript, never `canvas`.
+
 ## Useful Commands
 
 ```bash
@@ -303,5 +374,5 @@ npm list --depth=0
 
 ---
 
-*Last Updated: 2026-02-10*
+*Last Updated: 2026-08-12*
 *Document Version: 1.0*
