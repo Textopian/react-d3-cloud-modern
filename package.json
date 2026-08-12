@@ -46,6 +46,10 @@
     "preversion": "npm test"
   },
   "types": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "src"
+  ],
   "dependencies": {
     "d3-cloud": "^1.2.7",
     "d3-scale": "^4.0.2",
