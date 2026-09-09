@@ -5,7 +5,7 @@ This document provides context and guidelines for AI agents working on the `reac
 ## Project Overview
 
 **Package Name:** `react-d3-cloud-modern`
-**Current Version:** 1.0.16
+**Current Version:** 1.0.17
 **Type:** React component library
 **Purpose:** A modern, security-focused word cloud component for React applications
 
@@ -132,9 +132,9 @@ All are transitive **dev** dependencies. Keep this block in sync with
   "@tootallnate/once": "^3.0.1",
   "brace-expansion": "^1.1.18",
   "canvas": "^3.2.1",
-  "fast-uri": "3.1.5",
+  "fast-uri": "^3.1.6",
   "form-data": "^3.0.5",
-  "js-yaml": "^3.15.1",
+  "js-yaml": "^3.15.2",
   "ws": "^7.5.11"
 }
 ```

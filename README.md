@@ -240,7 +240,17 @@ MIT © [Yoctol](https://github.com/Yoctol/react-d3-cloud)
 
 ## Changelog
 
-### 1.0.16 (Latest)
+### 1.0.17 (Latest)
+
+- Security: Raise the transitive `fast-uri` override to `^3.1.6` and refresh
+  `browserslist` to `4.28.7` within its existing dependency ranges, addressing
+  Dependabot alerts #40–45. No Browserslist override is needed.
+- Security: Raise the transitive `js-yaml` override to `^3.15.2` for the
+  additional npm audit advisory GHSA-2883-xcg3-v3hh.
+- These updates affect development tooling only; runtime dependency ranges and
+  the component API are unchanged. `npm audit --omit=dev` was already clean.
+
+### 1.0.16
 
 - Security: Clear three high-severity Dependabot alerts by forcing transitive
   `brace-expansion` to `^1.1.18` (GHSA-3jxr-9vmj-r5cp, GHSA-mh99-v99m-4gvg,
