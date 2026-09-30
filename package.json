@@ -15,7 +15,7 @@
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "7.29.4",
     "@tootallnate/once": "^3.0.1",
-    "brace-expansion": "^1.1.18",
+    "brace-expansion": "^1.1.21",
     "canvas": "^3.2.1",
     "fast-uri": "^3.1.8",
     "form-data": "^3.0.5",
