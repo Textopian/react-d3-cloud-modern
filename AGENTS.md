@@ -310,13 +310,19 @@ in the changelog so downstream repos can prioritize correctly.
    - Use conventional commit format
    - Example: `chore: bump version to X.Y.Z`
 
-3. **Publish** (after the release PR is merged; see Ordering)
-   - Tag the merge commit on `main` and push the tag:
+3. **Publish** (after the release PR is merged; see Ordering). Run
+   `.github/workflows/publish.yml` in one of two ways:
+   - **Agents:** trigger the workflow manually (`workflow_dispatch`) on `main`,
+     e.g. with the GitHub MCP `actions_run_trigger` tool. Cloud agent sessions
+     cannot push tags (the git proxy only accepts branch pushes), so the
+     workflow creates the `vX.Y.Z` tag itself after publishing
+   - **Humans:** either the same manual trigger (Actions tab → Publish → Run
+     workflow on `main`), or push a tag:
      `git tag vX.Y.Z origin/main && git push origin vX.Y.Z`
-   - `.github/workflows/publish.yml` then checks that the tag matches
-     `package.json` and that the version isn't already on npm. It runs
-     `check`, the tests and `prettier:check`, publishes with npm Trusted
-     Publishing, and creates the GitHub release with generated notes
+   - The workflow refuses a tag that doesn't match `package.json`, a manual
+     run off `main`, and a version already on npm. It then runs `check`, the
+     tests and `prettier:check`, publishes with npm Trusted Publishing, and
+     creates the GitHub release with generated notes
    - Verify on npmjs.com
 
 4. **Post-publish**
@@ -332,8 +338,8 @@ Dependabot alerts, which are counted against the default branch.
 ### Trusted Publishing (the normal path)
 
 Publishing runs in GitHub Actions through npm Trusted Publishing (OIDC). No
-npm token exists anywhere, and an agent never needs npm credentials: pushing a
-`vX.Y.Z` tag is the whole release. npmjs.com trusts exactly one workflow:
+npm token exists anywhere, and an agent never needs npm credentials:
+triggering the workflow on `main` is the whole release. npmjs.com trusts exactly one workflow:
 
 - Package Settings → Trusted publishing → GitHub Actions
 - Organization or user: `Textopian`, repository: `react-d3-cloud-modern`,
@@ -344,10 +350,11 @@ updated. Trusted Publishing needs npm ≥ 11.5.1, so keep the workflow on
 Node 24+. Third-party actions are pinned to commit SHAs. When bumping one,
 resolve the new tag with `git ls-remote --tags https://github.com/<owner>/<repo>`.
 
-If a publish run fails after the tag is pushed, fix the cause on `main`. Then
-either re-run the job (if the tagged commit is still the right one) or delete
-and re-push the tag. The workflow refuses to publish a version that is
-already on npm, so re-running is safe.
+If a publish run fails before `npm publish`, fix the cause on `main` and run
+the workflow again. If it was tag-triggered, delete and re-push the tag
+instead. The workflow refuses to publish a version that is already on npm, so
+re-running is safe. If it fails _after_ publishing, while tagging or creating
+the release, finish those two steps by hand rather than re-running.
 
 ### Manual Publishing (fallback)
 
