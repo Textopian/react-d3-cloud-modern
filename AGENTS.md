@@ -23,6 +23,8 @@ This is a maintained fork of [Yoctol/react-d3-cloud](https://github.com/Yoctol/r
 - `.claude/skills/dependency-refresh/`: update or simplify dependencies and
   prove consumers see no change. Its `scripts/ssr-smoke.sh` byte-compares
   rendered markup with the published version on React 16.8–19, CJS and ESM.
+- `.claude/skills/branch-cleanup/`: delete remote branches from a cloud
+  session (git can't), via a temporary self-deleting workflow run.
 
 ## Project Structure
 
@@ -42,6 +44,7 @@ react-d3-cloud-modern/
 ├── tsconfig.build.json       # TypeScript build configuration
 ├── vitest.config.mjs         # Vitest configuration
 ├── .github/workflows/
+│   ├── ci.yml                # PR/main checks (GitHub-hosted runners)
 │   └── publish.yml           # npm release (Trusted Publishing)
 └── .claude/skills/           # Agent skills: release, dependency-refresh
 ```
@@ -309,6 +312,22 @@ in the changelog so downstream repos can prioritize correctly.
    - `canvas@3` ships prebuilt binaries; with `npm ci --ignore-scripts`, run
      `npm rebuild canvas` before `npm test`
 
+## Continuous Integration
+
+`.github/workflows/ci.yml` runs on every pull request and every push to
+`main`, on GitHub-hosted runners (free, because the repo is public):
+
+- **Test (React 18 / 19):** `check`, `test`, `prettier:check`, `build`, and
+  a check that the committed `lib/` matches a fresh build. Commit the
+  regenerated `lib/` whenever the build output changes.
+- **Rendering on React 16.8–19:** the `dependency-refresh` skill's
+  `ssr-smoke.sh`, which byte-compares rendered markup with the latest
+  published version. A PR that changes rendering on purpose fails this job.
+  Call that out in the PR and compare the output by eye.
+
+Do not move CI to a self-hosted runner: on a public repo, pull requests from
+forks could run code on that machine.
+
 ## Release Process
 
 1. **Pre-release Checks**
@@ -422,10 +441,11 @@ These were observed in Claude Code cloud sessions on this repo:
 
 - **Git proxy:** pushing branches works. Pushing tags and deleting remote
   branches both fail with "remote end hung up". Release via the workflow's
-  manual trigger, and ask the user to delete leftover branches.
+  manual trigger. When the user asks for branches to be deleted, use the
+  `branch-cleanup` skill (a temporary, self-deleting workflow run).
 - **GitHub MCP:** it can merge PRs, trigger and inspect workflow runs, and
   read job logs. It cannot create tags, change repository settings, or delete
-  branches.
+  branches directly.
 - **Other repos:** attaching another repository (e.g. `Textopian/textopian`
   to bump this package downstream) is blocked by the auto-permission
   classifier unless the user explicitly asks for it. Ask; don't retry.

@@ -92,8 +92,9 @@ The run log's "GITHUB_TOKEN Permissions" group lists only `Contents` and
 `Metadata`, even when `id-token: write` is granted. Its absence there is
 **not** evidence of a missing permission.
 
-A cloud session can't delete the throwaway branch (the proxy rejects branch
-deletion too). Tell the user to delete it from the repo's Branches page.
+A cloud session can't delete the throwaway branch with git (the proxy rejects
+branch deletion). Delete it with the `branch-cleanup` skill, or ask the user
+to delete it from the repo's Branches page.
 
 ## Fallback
 

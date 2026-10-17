@@ -1,0 +1,62 @@
+# Checks every pull request and every push to main. Runs on GitHub-hosted
+# runners, which are free for public repositories. Never use a self-hosted
+# runner here: on a public repo, pull requests from forks could run code on it.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test (React ${{ matrix.react }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        react: [18, 19]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+
+      # --ignore-scripts skips canvas's native install; rebuild fetches its
+      # prebuilt binary, which the tests need.
+      - run: npm ci --ignore-scripts
+      - name: Use React ${{ matrix.react }}
+        if: matrix.react != 19
+        run: npm install --no-save --ignore-scripts react@${{ matrix.react }} react-dom@${{ matrix.react }}
+      - run: npm rebuild canvas
+      - run: npm run check
+      - run: npm test
+      - run: npm run prettier:check
+      - run: npm run build
+      - name: Committed lib/ matches the build
+        run: git diff --exit-code -- lib
+
+  compat:
+    name: Rendering on React 16.8–19 (CJS + ESM)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      # Server-renders the packed package on React 16.8.6, 17, 18 and 19 via
+      # require() and import(), and byte-compares the markup with the latest
+      # published version. A PR that changes rendering on purpose fails here;
+      # say so in the PR and compare the output by eye.
+      - run: .claude/skills/dependency-refresh/scripts/ssr-smoke.sh "$RUNNER_TEMP/ssr-smoke"
