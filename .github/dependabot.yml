@@ -1,0 +1,38 @@
+# Monthly, grouped dependency updates. CI (.github/workflows/ci.yml) checks
+# every Dependabot PR, including the React 16.8-19 rendering comparison.
+# See AGENTS.md ("Dependabot") for when an update needs a release.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    # A library should not force consumers onto newer versions: only touch a
+    # range in package.json when the new version falls outside it. In-range
+    # updates refresh package-lock.json only.
+    versioning-strategy: increase-if-necessary
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore(deps)'
+      prefix-development: 'chore(deps-dev)'
+    groups:
+      # Minor and patch updates arrive as one PR per dependency type. Major
+      # updates come one PR each, because they can need code changes.
+      runtime:
+        dependency-type: production
+        update-types: [minor, patch]
+      dev-tooling:
+        dependency-type: development
+        update-types: [minor, patch]
+
+  # Keeps the SHA-pinned actions in ci.yml and publish.yml current, along
+  # with their "# vX.Y.Z" comments.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: 'ci'
+    groups:
+      actions:
+        patterns: ['*']
