@@ -5,7 +5,7 @@ This document provides context and guidelines for AI agents working on the `reac
 ## Project Overview
 
 **Package Name:** `react-d3-cloud-modern`
-**Current Version:** 1.1.0
+**Current Version:** 1.1.1
 **Type:** React component library
 **Purpose:** A modern, security-focused word cloud component for React applications
 
@@ -43,10 +43,16 @@ react-d3-cloud-modern/
 ├── tsconfig.json             # TypeScript configuration (type check)
 ├── tsconfig.build.json       # TypeScript build configuration
 ├── vitest.config.mjs         # Vitest configuration
+├── README.md                 # User docs; this IS the npm listing
+├── CHANGELOG.md              # Release history (newest first, "(Latest)")
+├── CONTRIBUTING.md           # Dev setup, canvas notes, regenerating hero
+├── docs/
+│   ├── hero.jsx              # Source of the README image (not published)
+│   └── hero.png              # README image, loaded from GitHub raw
 ├── .github/workflows/
 │   ├── ci.yml                # PR/main checks (GitHub-hosted runners)
 │   └── publish.yml           # npm release (Trusted Publishing)
-└── .claude/skills/           # Agent skills: release, dependency-refresh
+└── .claude/skills/           # release, dependency-refresh, branch-cleanup
 ```
 
 ## Core Technologies
@@ -306,11 +312,64 @@ in the changelog so downstream repos can prioritize correctly.
 
 4. **Node Canvas Dependency**
    - Requires native binaries (Cairo, Pango, etc.)
-   - Installation instructions in README for Mac/Ubuntu
+   - Installation instructions in `CONTRIBUTING.md` for Mac/Ubuntu
    - May cause issues in containerized environments
    - Only needed for SSR/testing, not end users
    - `canvas@3` ships prebuilt binaries; with `npm ci --ignore-scripts`, run
      `npm rebuild canvas` before `npm test`
+
+5. **Client-side rendering only**
+   - `d3-cloud` measures text with a canvas from `document`, so server
+     rendering throws `ReferenceError: document is not defined`. The README's
+     "Next.js and SSR" recipe documents the client-only patterns. Don't claim
+     SSR support anywhere
+   - The SSR smoke test works only because it installs a jsdom `document`
+     global first
+
+6. **Function props are compared by identity**
+   - `React.memo` + `react-fast-compare` compare data deeply, but functions by
+     reference. An inline `fill={() => …}` re-runs the layout on every parent
+     render, and with the default random rotation the words visibly jump.
+     The README's "Keep the layout steady" recipe covers it. Keep any new
+     examples consistent with it (stable functions or `useCallback`)
+
+7. **`Word` type is not exported from the package entry**
+   - `src/index.ts` exports only the default component, so consumers derive
+     types with `ComponentProps<typeof WordCloud>` (README "TypeScript").
+     Exporting `Word`/props types would be a small, worthwhile minor release
+
+## README and the npm Listing
+
+`README.md` is what npmjs.com shows. It was rewritten for 1.1.1 to be
+user-first: hero, quick start, recipes, API table, troubleshooting,
+compatibility. Contributor material lives in `CONTRIBUTING.md`, history in
+`CHANGELOG.md`.
+
+- **npm only refreshes the page on publish.** A README-only change still
+  needs a patch release (that is what 1.1.1 was). Bump the version, add a
+  `CHANGELOG.md` entry, and release via the `release` skill.
+- **Test examples in a real browser, verbatim.** Every runnable `jsx` block
+  in the README was extracted as written, bundled with esbuild, and mounted
+  in headless Chromium (`playwright-core`, `executablePath:
+/opt/pw-browsers/chromium-1194/chrome-linux/chrome` in cloud sessions),
+  checking for words rendered and no console errors. Behavioral claims
+  (stable layout with `useCallback` vs. inline functions, seeded layouts,
+  click handling) were tested too, and so was the TypeScript block, with
+  `@types/react` 18 and 19. Do the same before changing examples. Every
+  example must keep using `react-dom/client` (`createRoot`), never the
+  `render` that React 19 removed.
+- **Hero image:** `docs/hero.png` is rendered by this package from
+  `docs/hero.jsx` (Inter, 960px container, 2×, seed chosen for centering).
+  See `CONTRIBUTING.md`. `docs/` is not in `files`, and the README references
+  the image by its `raw.githubusercontent.com/.../main/docs/hero.png` URL,
+  so it must exist on `main` before the release that links it.
+- **Verifying the live page:** npmjs.com is behind a Cloudflare bot check
+  that blocks headless browsers. Don't try to get around it. Verify through
+  the registry instead (`https://registry.npmjs.org/react-d3-cloud-modern`:
+  `readme`, `description`, `keywords`, `dist.attestations`), and ask the user
+  to eyeball the page.
+- **Badges** use shields.io for _this_ package. The old ones pointed at the
+  Yoctol project.
 
 ## Continuous Integration
 
@@ -384,7 +443,7 @@ The GitHub repo is **public**, which is what lets npm attach provenance to
 each release. First Trusted Publishing release: 1.1.0 (2026-10-17).
 
 After a successful run, the registry can take several minutes to show the
-new version ("Your package is being processed"). Poll before concluding
+new version (about 7 minutes for 1.1.0, about 2 for 1.1.1) ("Your package is being processed"). Poll before concluding
 anything failed. If `npm publish` fails with `E404`, the OIDC handshake
 failed; the `release` skill has a diagnostic that pinpoints which side.
 
@@ -450,7 +509,17 @@ These were observed in Claude Code cloud sessions on this repo:
   to bump this package downstream) is blocked by the auto-permission
   classifier unless the user explicitly asks for it. Ask; don't retry.
 - **npm:** no credentials, and none needed. Don't send `npm login` links
-  unless the workflow path is unavailable.
+  unless the workflow path is unavailable. If you do, they expire within a
+  few minutes, so send one only when the maintainer is ready to approve it.
+- **npmjs.com web pages** are blocked for headless browsers (Cloudflare).
+  Use the registry JSON API instead; see "README and the npm Listing".
+- **Chromium** is preinstalled at `/opt/pw-browsers`. Use it through
+  `playwright-core` with an explicit `executablePath`; don't run
+  `playwright install`.
+- **Downstream app:** the Textopian app (`Textopian/textopian`, Meteor) uses
+  this package. Upgrade it from a session that has that repo attached, with
+  the user's go-ahead. For 1.1.x it must declare `d3-scale` and
+  `d3-scale-chromatic` itself if it imports them.
 
 ## Useful Commands
 
@@ -483,7 +552,8 @@ npm list --depth=0
 - **GitHub Repository:** https://github.com/Textopian/react-d3-cloud-modern
 - **Original Project:** https://github.com/Yoctol/react-d3-cloud
 - **D3 Cloud Documentation:** https://github.com/jasondavies/d3-cloud
-- **Demo:** https://codesandbox.io/embed/react-d3-cloud-demo-forked-50wzl
+- **Changelog:** [`CHANGELOG.md`](CHANGELOG.md)
+- **Releases:** https://github.com/Textopian/react-d3-cloud-modern/releases
 
 ## Contact
 
@@ -494,4 +564,4 @@ npm list --depth=0
 ---
 
 _Last Updated: 2026-10-17_
-_Document Version: 1.0_
+_Document Version: 1.1_
