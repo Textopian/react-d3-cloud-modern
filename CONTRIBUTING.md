@@ -40,6 +40,14 @@ npm run prettier         # format
 npm run prettier:check   # what CI-style checks run
 ```
 
+## Regenerating the README image
+
+`docs/hero.png` is rendered by this package from `docs/hero.jsx`, in
+headless Chromium at 2× pixel density with the Inter font, inside a 960px
+container. The layout is seeded, so re-rendering gives the same image. Keep
+the image in `docs/`, which isn't published to npm; the README loads it from
+GitHub.
+
 Please keep the public API and the rendered output stable. If a change
 affects what users see, say so in the PR and add a `CHANGELOG.md` entry.
 

@@ -93,6 +93,6 @@ d=$(mktemp -d) && cd "$d" && echo '{"name":"c","private":true}' > package.json \
 
 ## 4. Ship
 
-Changelog entry in `README.md`, then bump the version: patch for
+Changelog entry in `CHANGELOG.md`, then bump the version: patch for
 security/hygiene, minor when dependencies are dropped or build output
 changes. Open a PR, then follow the `release` skill.

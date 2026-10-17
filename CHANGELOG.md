@@ -2,7 +2,17 @@
 
 All notable changes to `react-d3-cloud-modern`. Versions follow [semantic versioning](https://semver.org/).
 
-## 1.1.0 (Latest)
+## 1.1.1 (Latest)
+
+- Docs: The npm page has a rewritten README: a quick start, recipes (sizing,
+  colors, events, stable and repeatable layouts, Next.js/SSR, TypeScript), a
+  corrected props reference, troubleshooting, and a migration note from
+  `react-d3-cloud`. Every example is tested in a real browser. Fixed old
+  examples that used `react-dom`'s `render`, which React 19 removed.
+- Metadata: A clearer npm description and keywords.
+- No code changes. The published `lib/` is identical to 1.1.0.
+
+## 1.1.0
 
 - Dependencies: Drop `d3-scale`, `d3-scale-chromatic`, and the unused
   `prop-types` from runtime dependencies. The default `fill` palette (d3's
