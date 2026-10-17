@@ -1,6 +1,6 @@
 {
   "name": "react-d3-cloud-modern",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Beautiful, interactive word clouds for React 16.8–19. Typed, small, ESM + CommonJS, built on d3-cloud.",
   "license": "MIT",
   "author": "cph",

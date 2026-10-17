@@ -2,7 +2,22 @@
 
 All notable changes to `react-d3-cloud-modern`. Versions follow [semantic versioning](https://semver.org/).
 
-## 1.1.1 (Latest)
+## 1.2.0 (Latest)
+
+- Types: The package entry now exports `WordCloudProps` and `Word`:
+  `import WordCloud, { type Word, type WordCloudProps } from 'react-d3-cloud-modern'`.
+- Fix: The published type definitions no longer depend on `@types/d3-cloud`
+  or `@types/d3-selection`, which consumers never had installed. Previously,
+  TypeScript users silently lost the layout fields on `Word` (`size`, `x`,
+  `y`, `rotate`, …), and the `fill` and handler types degraded. The types are
+  now self-contained, and `fill` and the handlers are typed as
+  `(word, index) => string` and `(event, word) => void`.
+- Docs: Corrected the README. Inside handlers and `fill`, `this` is the
+  library's internal virtual node, not the DOM element. Use `event.target`
+  to reach the word's `<text>` element; `event` is the native DOM event.
+- No runtime changes: the JavaScript in `lib/` is identical to 1.1.1.
+
+## 1.1.1
 
 - Docs: The npm page has a rewritten README: a quick start, recipes (sizing,
   colors, events, stable and repeatable layouts, Next.js/SSR, TypeScript), a

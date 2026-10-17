@@ -2,19 +2,35 @@ import React from 'react';
 import ReactFauxDom from 'react-faux-dom';
 import cloud from 'd3-cloud';
 import isDeepEqual from 'react-fast-compare';
-import { BaseType, ValueFn, select } from 'd3-selection';
+import { ValueFn, select } from 'd3-selection';
+
+// The public types below are self-contained on purpose: the published .d.ts
+// must not import from d3-cloud or d3-selection, whose type packages are only
+// dev dependencies here, so consumers don't have them.
 
 interface Datum {
   text: string;
   value: number;
 }
 
-export interface Word extends cloud.Word {
-  text: string;
-  value: number;
+/** A word as accessors and handlers see it: your datum plus layout fields. */
+export interface Word extends Datum {
+  font?: string;
+  style?: string;
+  weight?: string | number;
+  rotate?: number;
+  size?: number;
+  padding?: number;
+  x?: number;
+  y?: number;
 }
 
-type WordCloudProps = {
+// Handlers and `fill` run with `this` bound to react-faux-dom's virtual node,
+// not the DOM element, so their types don't promise a `this`. The event is the
+// native DOM event; `event.target` is the <text> element.
+type WordHandler = (event: any, word: Word) => void;
+
+export type WordCloudProps = {
   data: Datum[];
   width?: number;
   height?: number;
@@ -30,10 +46,10 @@ type WordCloudProps = {
     | ((size: [number, number]) => (t: number) => [number, number]);
   padding?: number | ((word: Word, index: number) => number);
   random?: () => number;
-  fill?: ValueFn<SVGTextElement, Word, string>;
-  onWordClick?: (this: BaseType, event: any, d: Word) => void;
-  onWordMouseOver?: (this: BaseType, event: any, d: Word) => void;
-  onWordMouseOut?: (this: BaseType, event: any, d: Word) => void;
+  fill?: (word: Word, index: number) => string;
+  onWordClick?: WordHandler;
+  onWordMouseOver?: WordHandler;
+  onWordMouseOut?: WordHandler;
 };
 
 // d3's schemeCategory10, inlined so the default fill doesn't pull in d3-scale.
