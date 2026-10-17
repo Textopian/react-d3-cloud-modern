@@ -212,11 +212,12 @@ Tests run on [Vitest](https://vitest.dev/) with jsdom, and need the native
 
 ### Publish to NPM
 
-```sh
-npm publish
-```
-
-_(Note: The `prepublishOnly` script will automatically run `npm run build` before publishing.)_
+Releases are published by GitHub Actions (`.github/workflows/publish.yml`)
+using npm Trusted Publishing, with provenance. No npm token is involved. After
+the version bump is merged to `main`, either run the **Publish** workflow
+manually on `main` (Actions tab → Publish → Run workflow), or push a
+`vX.Y.Z` tag. The workflow runs the checks and tests, publishes, tags the
+commit, and creates the GitHub release.
 
 ## Development
 

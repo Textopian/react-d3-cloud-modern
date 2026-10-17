@@ -1,0 +1,42 @@
+# Diagnostic for npm Trusted Publishing: checks the GitHub OIDC -> npm token
+# exchange WITHOUT publishing. Use only on a throwaway branch, copied over
+# .github/workflows/publish.yml (npm trusts that filename), then dispatch
+# publish.yml with ref=<branch>. Never merge. See ../SKILL.md.
+name: Publish
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Diagnose OIDC exchange (no publish)
+        run: |
+          if [ -z "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+            echo "::error::No OIDC request URL: id-token permission was not granted"
+            exit 1
+          fi
+          echo "OIDC request URL present"
+          id_token="$(curl -sS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=npm:registry.npmjs.org" | jq -r .value)"
+          echo "::add-mask::$id_token"
+          # Print only the non-secret claims npm matches against.
+          echo "$id_token" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null \
+            | jq '{repository, repository_owner, workflow_ref, job_workflow_ref, ref, event_name, environment}' || true
+          status="$(curl -sS -o /tmp/resp.json -w '%{http_code}' -X POST \
+            -H "Authorization: Bearer $id_token" \
+            https://registry.npmjs.org/-/npm/v1/oidc/token/exchange/package/react-d3-cloud-modern)"
+          echo "npm token exchange HTTP status: $status"
+          if [ "$status" = "201" ] || [ "$status" = "200" ]; then
+            echo "Exchange succeeded (token not printed)"
+          else
+            cat /tmp/resp.json; echo
+          fi
+          rm -f /tmp/resp.json
