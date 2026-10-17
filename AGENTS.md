@@ -49,9 +49,11 @@ react-d3-cloud-modern/
 ├── docs/
 │   ├── hero.jsx              # Source of the README image (not published)
 │   └── hero.png              # README image, loaded from GitHub raw
-├── .github/workflows/
-│   ├── ci.yml                # PR/main checks (GitHub-hosted runners)
-│   └── publish.yml           # npm release (Trusted Publishing)
+├── .github/
+│   ├── dependabot.yml        # Monthly grouped dependency updates
+│   └── workflows/
+│       ├── ci.yml            # PR/main checks (GitHub-hosted runners)
+│       └── publish.yml       # npm release (Trusted Publishing)
 └── .claude/skills/           # release, dependency-refresh, branch-cleanup
 ```
 
@@ -386,6 +388,26 @@ compatibility. Contributor material lives in `CONTRIBUTING.md`, history in
 
 Do not move CI to a self-hosted runner: on a public repo, pull requests from
 forks could run code on that machine.
+
+### Dependabot
+
+`.github/dependabot.yml` opens update PRs monthly:
+
+- **npm, minor/patch:** one grouped PR for runtime dependencies and one for
+  dev tooling. `versioning-strategy: increase-if-necessary` means in-range
+  updates touch only `package-lock.json`. Consumers' ranges aren't forced
+  upward.
+- **npm, major:** one PR per package, because these can need code changes.
+  Handle them with the `dependency-refresh` skill.
+- **GitHub Actions:** one grouped PR that bumps the SHA pins and their
+  `# vX.Y.Z` comments together.
+
+When CI is green, merge. **A release is needed only if** the PR changes a
+`dependencies` range in `package.json`, or changes the build output (CI's
+`lib/` check would flag that). Lockfile-only and dev-only updates never reach
+consumers, because `package-lock.json` isn't published. Security alerts still
+arrive as separate Dependabot security PRs; treat them the same way, and note
+in `CHANGELOG.md` whether consumers were affected (`npm audit --omit=dev`).
 
 ## Release Process
 
