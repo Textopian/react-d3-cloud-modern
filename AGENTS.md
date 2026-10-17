@@ -222,7 +222,7 @@ The project uses comprehensive TypeScript strict mode:
 
 6. **Version Management**
    - Update `package.json` version field
-   - Update CHANGELOG in README.md
+   - Update `CHANGELOG.md`
    - Follow semantic versioning (MAJOR.MINOR.PATCH)
    - Use conventional commit messages
 
@@ -335,7 +335,7 @@ forks could run code on that machine.
    - Run `npm run build` (verify build)
    - Run `npm test` (when tests are enabled)
    - Update version in `package.json`
-   - Update CHANGELOG in `README.md`
+   - Update `CHANGELOG.md`
 
 2. **Commit**
    - Use conventional commit format

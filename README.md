@@ -1,351 +1,341 @@
 # react-d3-cloud-modern
 
-[![npm version](https://badge.fury.io/js/react-d3-cloud.svg)](https://badge.fury.io/js/react-d3-cloud)
-[![Build Status](https://github.com/Yoctol/react-d3-cloud/workflows/CI/badge.svg?branch=master)](https://github.com/Yoctol/react-d3-cloud/actions?query=branch%3Amaster)
+**Beautiful, interactive word clouds for React, in one line of JSX.**
 
-A word cloud react component built with [d3-cloud](https://github.com/jasondavies/d3-cloud).
+[![npm version](https://img.shields.io/npm/v/react-d3-cloud-modern?color=4f46e5)](https://www.npmjs.com/package/react-d3-cloud-modern)
+[![types included](https://img.shields.io/npm/types/react-d3-cloud-modern?color=0ea5e9)](#typescript)
+[![React 16.8–19](https://img.shields.io/badge/react-16.8%20%E2%80%93%2019-14b8a6)](#compatibility)
+[![license MIT](https://img.shields.io/npm/l/react-d3-cloud-modern?color=64748b)](LICENSE)
 
-A modern fork of [react-d3-cloud](https://github.com/Yoctol/react-d3-cloud) with updated dependencies to address security vulnerabilities and provide React 19 compatibility.
+![A word cloud rendered by react-d3-cloud-modern](https://raw.githubusercontent.com/Textopian/react-d3-cloud-modern/main/docs/hero.png)
 
-![image](https://cloud.githubusercontent.com/assets/6868283/20619528/fa83334c-b32f-11e6-81dd-6fe4fa6c52d9.png)
+Give it a list of words with weights, and it lays them out with
+[d3-cloud](https://github.com/jasondavies/d3-cloud), the classic Wordle-style
+algorithm, so that bigger means more important. It is a maintained, modernized
+fork of [react-d3-cloud](https://github.com/Yoctol/react-d3-cloud) and a
+drop-in replacement for it.
 
-## Features
+- **Works with your React.** 16.8 through 19, with ES module and CommonJS builds.
+- **Typed.** TypeScript definitions are included; nothing extra to install.
+- **Small and audited.** Four runtime dependencies, audited at every release.
+  Every version is published from CI with
+  [npm provenance](https://docs.npmjs.com/generating-provenance-statements).
+- **Responsive.** The cloud scales to the width of its container.
 
-- 🎨 Interactive word clouds with customizable styling
-- ⚡ Optimized with React.memo and deep equality checks
-- 🔄 Support for React 16.8+, 17, 18, and 19
-- 📦 Dual module support (CommonJS and ESM)
-- 🎯 Full TypeScript support with type definitions
-- 🖱️ Mouse event handlers (click, mouseover, mouseout)
-- 🎲 Customizable word positioning, rotation, and sizing algorithms
-- 🛡️ Security-focused with regular dependency updates
-
-## Installation
+## Quick start
 
 ```sh
 npm install react-d3-cloud-modern
 ```
 
-## Usage
-
-Simple:
-
 ```jsx
-import React from 'react';
-import { render } from 'react-dom';
 import WordCloud from 'react-d3-cloud-modern';
 
-const data = [
-  { text: 'Hey', value: 1000 },
-  { text: 'lol', value: 200 },
-  { text: 'first impression', value: 800 },
-  { text: 'very cool', value: 1000000 },
-  { text: 'duck', value: 10 },
+const words = [
+  { text: 'React', value: 2500 },
+  { text: 'words', value: 1600 },
+  { text: 'cloud', value: 1200 },
+  { text: 'beautiful', value: 900 },
+  { text: 'simple', value: 600 },
+  { text: 'fast', value: 400 },
 ];
 
-render(<WordCloud data={data} />, document.getElementById('root'));
-```
-
-More configuration:
-
-```jsx
-import React from 'react';
-import { render } from 'react-dom';
-import WordCloud from 'react-d3-cloud-modern';
-import { scaleOrdinal } from 'd3-scale';
-import { schemeCategory10 } from 'd3-scale-chromatic';
-
-const data = [
-  { text: 'Hey', value: 1000 },
-  { text: 'lol', value: 200 },
-  { text: 'first impression', value: 800 },
-  { text: 'very cool', value: 1000000 },
-  { text: 'duck', value: 10 },
-];
-
-const schemeCategory10ScaleOrdinal = scaleOrdinal(schemeCategory10);
-
-render(
-  <WordCloud
-    data={data}
-    width={500}
-    height={500}
-    font="Times"
-    fontStyle="italic"
-    fontWeight="bold"
-    fontSize={(word) => Math.log2(word.value) * 5}
-    spiral="rectangular"
-    rotate={(word) => word.value % 360}
-    padding={5}
-    random={Math.random}
-    fill={(d, i) => schemeCategory10ScaleOrdinal(i)}
-    onWordClick={(event, d) => {
-      console.log(`onWordClick: ${d.text}`);
-    }}
-    onWordMouseOver={(event, d) => {
-      console.log(`onWordMouseOver: ${d.text}`);
-    }}
-    onWordMouseOut={(event, d) => {
-      console.log(`onWordMouseOut: ${d.text}`);
-    }}
-  />,
-  document.getElementById('root')
-);
-```
-
-Please checkout [demo](https://codesandbox.io/embed/react-d3-cloud-demo-forked-50wzl)
-
-for more detailed props, please refer to below:
-
-## Props
-
-| name            | description                                                                                                                                                                                                              | type                                                                 | required | default                                     |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- | -------- | ------------------------------------------- |
-| data            | The words array                                                                                                                                                                                                          | `{ text: string, value: number }>[]`                                 | ✓        |
-| width           | Width of the layout (px)                                                                                                                                                                                                 | `number`                                                             |          | `700`                                       |
-| height          | Height of the layout (px)                                                                                                                                                                                                | `number`                                                             |          | `600`                                       |
-| font            | The font accessor function, which indicates the font face for each word. A constant may be specified instead of a function.                                                                                              | `string \| (d) => string`                                            |          | `'serif'`                                   |
-| fontStyle       | The fontStyle accessor function, which indicates the font style for each word. A constant may be specified instead of a function.                                                                                        | `string \| (d) => string`                                            |          | `'normal'`                                  |
-| fontWeight      | The fontWeight accessor function, which indicates the font weight for each word. A constant may be specified instead of a function.                                                                                      | `string \| number \| (d) => string \| number`                        |          | `'normal'`                                  |
-| fontSize        | The fontSize accessor function, which indicates the numerical font size for each word.                                                                                                                                   | `(d) => number`                                                      |          | `(d) => Math.sqrt(d.value)`                 |
-| rotate          | The rotate accessor function, which indicates the rotation angle (in degrees) for each word.                                                                                                                             | `(d) => number`                                                      |          | `() => (~~(Math.random() * 6) - 3) * 30`    |
-| spiral          | The current type of spiral used for positioning words. This can either be one of the two built-in spirals, "archimedean" and "rectangular", or an arbitrary spiral generator can be used                                 | `'archimedean' \| 'rectangular' \| ([width, height]) => t => [x, y]` |          | `'archimedean'`                             |
-| padding         | The padding accessor function, which indicates the numerical padding for each word.                                                                                                                                      | `number \| (d) => number`                                            |          | `1`                                         |
-| random          | The internal random number generator, used for selecting the initial position of each word, and the clockwise/counterclockwise direction of the spiral for each word. This should return a number in the range `[0, 1)`. | `(d) => number`                                                      |          | `Math.random`                               |
-| fill            | The fill accessor function, which indicates the color for each word.                                                                                                                                                     | `(d, i) => string`                                                   |          | `(d, i) => schemeCategory10ScaleOrdinal(i)` |
-| onWordClick     | The function will be called when `click` event is triggered on a word                                                                                                                                                    | `(event, d) => {}`                                                   |          | null                                        |
-| onWordMouseOver | The function will be called when `mouseover` event is triggered on a word                                                                                                                                                | `(event, d) => {}`                                                   |          | null                                        |
-| onWordMouseOut  | The function will be called when `mouseout` event is triggered on a word                                                                                                                                                 | `(event, d) => {}`                                                   |          | null                                        |
-
-## FAQ
-
-### How to Use with Next.js/SSR
-
-To make `<WordCloud />` work with Server-Side Rendering (SSR), you need to avoid rendering it on the server:
-
-```js
-{
-  typeof window !== 'undefined' && <WordCloud data={data} />;
+export default function App() {
+  return <WordCloud data={words} />;
 }
 ```
 
-### How to Avoid Unnecessary Re-render
+That's all you need. A few things to know:
 
-As of version 0.10.1, `<WordCloud />` has been wrapped by `React.memo()` and deep equal comparison under the hood to avoid unnecessary re-render. All you need to do is to make your function props deep equal comparable using `useCallback()`:
+- **`value` sets the size.** By default a word is `√value` pixels tall, so
+  `400` → 20px and `2500` → 50px. If your numbers are small counts, like 1–50,
+  see [Size words to your data](#size-words-to-your-data).
+- **Words that don't fit are left out,** so a large or crowded cloud may show
+  fewer words than you passed in. More on that in
+  [Troubleshooting](#troubleshooting).
+- **It renders in the browser.** For Next.js and other server rendering, see
+  [Next.js and SSR](#nextjs-and-ssr).
 
-```js
-import React, { useCallback } from 'react';
-import { render } from 'react-dom';
+## Recipes
+
+Each recipe changes one thing. Mix and match.
+
+### Size words to your data
+
+Scale your values into the range of font sizes you want:
+
+```jsx
 import WordCloud from 'react-d3-cloud-modern';
-import { scaleOrdinal } from 'd3-scale';
-import { schemeCategory10 } from 'd3-scale-chromatic';
 
-function App() {
-  const data = [
-    { text: 'Hey', value: 1000 },
-    { text: 'lol', value: 200 },
-    { text: 'first impression', value: 800 },
-    { text: 'very cool', value: 1000000 },
-    { text: 'duck', value: 10 },
-  ];
+const words = [
+  { text: 'apples', value: 42 },
+  { text: 'pears', value: 17 },
+  { text: 'plums', value: 9 },
+  { text: 'figs', value: 3 },
+];
+const max = Math.max(...words.map((w) => w.value));
+const fontSize = (word) => 14 + (word.value / max) * 58; // 14px–72px
 
-  const fontSize = useCallback((word) => Math.log2(word.value) * 5, []);
-  const rotate = useCallback((word) => word.value % 360, []);
-  const fill = useCallback((d, i) => scaleOrdinal(schemeCategory10)(i), []);
-  const onWordClick = useCallback((word) => {
-    console.log(`onWordClick: ${word}`);
-  }, []);
-  const onWordMouseOver = useCallback((word) => {
-    console.log(`onWordMouseOver: ${word}`);
-  }, []);
-  const onWordMouseOut = useCallback((word) => {
-    console.log(`onWordMouseOut: ${word}`);
-  }, []);
+export default function App() {
+  return <WordCloud data={words} fontSize={fontSize} />;
+}
+```
 
+### Colors, fonts and rotation
+
+```jsx
+import WordCloud from 'react-d3-cloud-modern';
+
+const words = [
+  { text: 'indigo', value: 2500 },
+  { text: 'teal', value: 1600 },
+  { text: 'amber', value: 1200 },
+  { text: 'rose', value: 900 },
+];
+const palette = ['#4f46e5', '#0d9488', '#d97706', '#e11d48'];
+const fill = (word, index) => palette[index % palette.length];
+
+export default function App() {
   return (
     <WordCloud
-      data={data}
-      width={500}
-      height={500}
-      font="Times"
-      fontStyle="italic"
+      data={words}
+      font="Georgia"
       fontWeight="bold"
-      fontSize={fontSize}
-      spiral="rectangular"
-      rotate={rotate}
-      padding={5}
-      random={Math.random}
       fill={fill}
-      onWordClick={onWordClick}
-      onWordMouseOver={onWordMouseOver}
-      onWordMouseOut={onWordMouseOut}
+      rotate={0}
+      padding={4}
     />
   );
-);
+}
 ```
 
-## NPM Commands
+- Use `rotate={0}` for all-horizontal words, which read most easily. Use
+  `rotate={(word, index) => (index % 3 === 0 ? 90 : 0)}` to mix in vertical
+  ones.
+- `fill` also accepts a single color: `fill={() => '#334155'}`.
 
-### Install dependencies
+### Click and hover
 
-```sh
-npm install
+Handlers receive the DOM event and the word, including its layout position:
+
+```jsx
+import { useCallback, useState } from 'react';
+import WordCloud from 'react-d3-cloud-modern';
+
+const words = [
+  { text: 'click', value: 2500 },
+  { text: 'any', value: 1600 },
+  { text: 'word', value: 1200 },
+];
+
+// Handlers that don't need state can live outside the component.
+const highlight = (event) => (event.target.style.opacity = '0.6');
+const unhighlight = (event) => (event.target.style.opacity = '1');
+
+export default function App() {
+  const [picked, setPicked] = useState(null);
+  const onWordClick = useCallback((event, word) => setPicked(word.text), []);
+  return (
+    <>
+      <p>{picked ? `You picked “${picked}”` : 'Pick a word'}</p>
+      <WordCloud
+        data={words}
+        rotate={0}
+        onWordClick={onWordClick}
+        onWordMouseOver={highlight}
+        onWordMouseOut={unhighlight}
+      />
+    </>
+  );
+}
 ```
 
-### Build
+`useCallback` is not decoration here. See why in the next recipe.
 
-```sh
-npm run build
+### Keep the layout steady
+
+`<WordCloud>` compares its props deeply and only redoes the layout when
+something actually changed. Data arrays are compared by content, so
+rebuilding `data` on every render is fine. **Functions are compared by
+identity**, though, so an inline arrow function like `fill={() => 'red'}`
+counts as a new prop on every render. The words then get rearranged whenever
+the parent re-renders. Define functions outside the component, or wrap them in
+`useCallback`:
+
+```jsx
+import { useCallback, useState } from 'react';
+import WordCloud from 'react-d3-cloud-modern';
+
+const words = [
+  { text: 'steady', value: 2500 },
+  { text: 'calm', value: 1600 },
+  { text: 'stable', value: 1200 },
+];
+
+export default function App() {
+  const [clicks, setClicks] = useState(0);
+  const onWordClick = useCallback(() => setClicks((n) => n + 1), []);
+  return (
+    <>
+      <p>Clicks: {clicks} (the layout stays put)</p>
+      <WordCloud data={words} rotate={0} onWordClick={onWordClick} />
+    </>
+  );
+}
 ```
 
-This will build both CommonJS (`lib/`) and ESM (`lib/esm/`) versions.
+### The same layout every time
 
-### Type check and run tests
+By default, words start at random positions and get random rotations, so each
+page load looks a little different. For a repeatable cloud, like screenshots,
+reports, or tests, pass a fixed `rotate` and a seeded `random`:
 
-```sh
-npm run check
-npm test
+```jsx
+import WordCloud from 'react-d3-cloud-modern';
+
+const words = [
+  { text: 'same', value: 2500 },
+  { text: 'every', value: 1600 },
+  { text: 'time', value: 1200 },
+];
+
+// Tiny seeded random generator (mulberry32).
+function seeded(seed) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export default function App() {
+  return <WordCloud data={words} rotate={0} random={seeded(42)} />;
+}
 ```
 
-Tests run on [Vitest](https://vitest.dev/) with jsdom, and need the native
-`canvas` package (see below) because `d3-cloud` measures text on a canvas.
+### Next.js and SSR
 
-### Publish to NPM
+The layout measures text with a browser canvas, so the cloud must render on
+the client. On the server it throws `document is not defined`. In the Next.js
+App Router, load it client-side only:
 
-Releases are published by GitHub Actions (`.github/workflows/publish.yml`)
-using npm Trusted Publishing, with provenance. No npm token is involved. After
-the version bump is merged to `main`, either run the **Publish** workflow
-manually on `main` (Actions tab → Publish → Run workflow), or push a
-`vX.Y.Z` tag. The workflow runs the checks and tests, publishes, tags the
-commit, and creates the GitHub release.
+```jsx
+'use client';
 
-## Development
+import dynamic from 'next/dynamic';
 
-Requires Node.js 22.12+ for the development toolchain (consumers of the
-published package are unaffected).
+const WordCloud = dynamic(() => import('react-d3-cloud-modern'), {
+  ssr: false,
+});
 
-### Pre-install (for `node-canvas` support)
-
-`canvas` ships prebuilt binaries for common platforms; these system libraries
-are only needed when npm has to compile it from source.
-
-#### Mac OS X
-
-```sh
-brew install pkg-config cairo pango libpng jpeg giflib librsvg
+export default function Cloud({ words }) {
+  return <WordCloud data={words} />;
+}
 ```
 
-#### Ubuntu and Other Debian Based Systems
+Anywhere else, render it after mount:
 
-```sh
-sudo apt-get update
-sudo apt-get install libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++
+```jsx
+import { useEffect, useState } from 'react';
+import WordCloud from 'react-d3-cloud-modern';
+
+export default function Cloud({ words }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return mounted ? <WordCloud data={words} /> : null;
+}
 ```
 
-For more details, please check out [Installation guides](https://github.com/Automattic/node-canvas/wiki) at node-canvas wiki.
+### TypeScript
 
-## License
+Types ship with the package. To type your own props or helpers, take them
+from the component:
 
-MIT © [Yoctol](https://github.com/Yoctol/react-d3-cloud)
-| [Textopian](https://github.com/Textopian/react-d3-cloud-modern)
+```tsx
+import type { ComponentProps } from 'react';
+import WordCloud from 'react-d3-cloud-modern';
 
-## Changelog
+type WordCloudProps = ComponentProps<typeof WordCloud>;
+type Word = WordCloudProps['data'][number]; // { text: string; value: number }
 
-### 1.1.0 (Latest)
+const words: Word[] = [{ text: 'typed', value: 900 }];
+```
 
-- Dependencies: Drop `d3-scale`, `d3-scale-chromatic`, and the unused
-  `prop-types` from runtime dependencies. The default `fill` palette (d3's
-  `schemeCategory10`) is now inlined, and rendered output is byte-identical to
-  1.0.17. A consumer install goes from 23 packages (3.5 MB) to 13 (1.4 MB).
-  If your app imports `d3-scale` for a custom `fill`, list it in your own
-  `dependencies`; it is no longer installed transitively.
-- Dependencies: Raise `d3-cloud` to `^1.2.9` and `react-fast-compare` to
-  `^3.2.2`.
-- Build: Compile with TypeScript only (Babel removed). `lib/esm` is now real
-  ES modules (previously it held CommonJS), so bundlers can tree-shake it.
-  Output targets ES2018 instead of ES5; `d3-selection@3` already required
-  ES2015+, so supported environments don't change. Type declarations are
-  unchanged.
-- Tooling: Replace Jest 27 with Vitest; the test suite, which had been
-  skipped because Jest could not load ESM-only `d3-selection`, now runs and
-  passes on React 18 and 19. Remove the unconfigured ESLint/husky/lint-staged
-  stack. `npm run check` now type-checks `src/` (it only covered the test setup
-  file before). Upgrade TypeScript to 7 and Prettier to 3.
-- Security: `npm audit` goes from 48 development-only findings to 0, and every
-  `overrides` entry is gone. `npm audit --omit=dev` was already clean.
+## API
 
-### 1.0.17
+`<WordCloud>` accepts these props. Only `data` is required.
 
-- Security: Raise the transitive `fast-uri` override to `^3.1.6` and refresh
-  `browserslist` to `4.28.7` within its existing dependency ranges, addressing
-  Dependabot alerts #40–45. No Browserslist override is needed.
-- Security: Raise the transitive `js-yaml` override to `^3.15.2` for the
-  additional npm audit advisory GHSA-2883-xcg3-v3hh.
-- These updates affect development tooling only; runtime dependency ranges and
-  the component API are unchanged. `npm audit --omit=dev` was already clean.
+Accessor props take either a constant or a function
+`(word, index) => value`. Inside an accessor, `word` is your datum plus the
+layout fields d3-cloud adds (`size`, `x`, `y`, `rotate`, `font`, …).
 
-### 1.0.16
+| Prop              | Type                                                        | Default                                    | What it does                                                                                                          |
+| ----------------- | ----------------------------------------------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| `data`            | `{ text: string; value: number }[]`                         | (required)                                 | The words and their weights.                                                                                          |
+| `width`           | `number`                                                    | `700`                                      | Layout width in px. The SVG scales to its container; this sets the layout's proportions and how much room words have. |
+| `height`          | `number`                                                    | `600`                                      | Layout height in px.                                                                                                  |
+| `font`            | `string \| (word, i) => string`                             | `'serif'`                                  | Font family.                                                                                                          |
+| `fontStyle`       | `string \| (word, i) => string`                             | `'normal'`                                 | CSS `font-style`, e.g. `'italic'`.                                                                                    |
+| `fontWeight`      | `string \| number \| (word, i) => string \| number`         | `'normal'`                                 | CSS `font-weight`, e.g. `'bold'` or `700`.                                                                            |
+| `fontSize`        | `number \| (word, i) => number`                             | `(word) => Math.sqrt(word.value)`          | Font size in px.                                                                                                      |
+| `rotate`          | `number \| (word, i) => number`                             | random: −90°, −60°, −30°, 0°, 30° or 60°   | Rotation in degrees.                                                                                                  |
+| `spiral`          | `'archimedean' \| 'rectangular' \| (size) => (t) => [x, y]` | `'archimedean'`                            | How words spiral outward to find a free spot. `'rectangular'` gives a boxier cloud.                                   |
+| `padding`         | `number \| (word, i) => number`                             | `1`                                        | Space around each word, in px.                                                                                        |
+| `random`          | `() => number`                                              | `Math.random`                              | Random source in `[0, 1)` for starting positions and spiral direction. Pass a seeded one for repeatable layouts.      |
+| `fill`            | `(word, i) => string`                                       | d3's 10-color `schemeCategory10`, by index | Word color.                                                                                                           |
+| `onWordClick`     | `(event, word) => void`                                     | none                                       | Called when a word is clicked. `this` is the `<text>` element.                                                        |
+| `onWordMouseOver` | `(event, word) => void`                                     | none                                       | Called when the pointer enters a word.                                                                                |
+| `onWordMouseOut`  | `(event, word) => void`                                     | none                                       | Called when the pointer leaves a word.                                                                                |
 
-- Security: Clear three high-severity Dependabot alerts by forcing transitive
-  `brace-expansion` to `^1.1.18` (GHSA-3jxr-9vmj-r5cp, GHSA-mh99-v99m-4gvg,
-  GHSA-rgw5-rvv9-x895), `fast-uri` to `3.1.5` (GHSA-v2hh-gcrm-f6hx,
-  GHSA-7p8r-x3mc-p8w7, GHSA-4c8g-83qw-93j6), and `js-yaml` to `^3.15.1`
-  (GHSA-5p4m-2wfm-xmqj). The previous `fast-uri` and `js-yaml` overrides had
-  themselves fallen into the advisory ranges.
-- Published tarball is unchanged for consumers — all three are dev-only
-  transitive dependencies and `npm audit --omit=dev` was already clean.
+## Troubleshooting
 
-### 1.0.15
+**Some of my words are missing.** d3-cloud leaves out words that don't fit.
+Try a smaller `fontSize`, less `padding`, a larger `width`/`height`, or
+`rotate={0}`. Very small words (about 1–3px, e.g. `value` under ~10 with the
+default size) can also vanish. Scale them up as shown in
+[Size words to your data](#size-words-to-your-data).
 
-- Security: Raise `@babel/core` to the fixed Babel 7 range and force
-  transitive `form-data`, `ws`, and `js-yaml` versions above current
-  advisory ranges.
+**The words jump around when my page re-renders.** A function prop is being
+recreated on every render. See [Keep the layout steady](#keep-the-layout-steady).
 
-### 1.0.14
+**`document is not defined`.** It's rendering on the server. See
+[Next.js and SSR](#nextjs-and-ssr).
 
-- Security: Force transitive `fast-uri` to `3.1.2` and
-  `@babel/plugin-transform-modules-systemjs` to `7.29.4` to clear
-  CVE-2026-6321, CVE-2026-6322, and CVE-2026-44728.
+**The cloud is too big or too small.** It fills its container's width, so
+size the container, for example `<div style={{ maxWidth: 480 }}>`. Change
+`width`/`height` to change the shape.
 
-### 1.0.13
+## Compatibility
 
-- Security: Bump transitive devDependencies to clear Dependabot alerts (`brace-expansion`, `lodash`, `picomatch`, `yaml`). Published tarball is unchanged for consumers — these are dev-only patches.
-- Maintenance: Repository moved to the `Textopian` organization; package metadata updated.
+- **React:** 16.8, 17, 18 and 19, with the matching `react-dom` as a peer.
+- **Modules:** ES modules (`import`) and CommonJS (`require`), selected
+  automatically.
+- **Browsers:** the published code targets ES2018, so any current browser.
+- **Rendering:** client-side only (see [Next.js and SSR](#nextjs-and-ssr)).
 
-### 1.0.12
+### Coming from `react-d3-cloud`?
 
-- Security: Address `flatted` and `@tootallnate/once` vulnerabilities via dependency updates and overrides.
-- Housekeeping: Update internal dependencies via `npm audit fix`.
+Same props, same output. Swap the package and the import:
 
-### 1.0.11
+```diff
+- import WordCloud from 'react-d3-cloud';
++ import WordCloud from 'react-d3-cloud-modern';
+```
 
-- Security: Dependency updates to address vulnerabilities
+If your code imports `d3-scale` or `d3-scale-chromatic` (for example, to build
+a custom `fill`), add them to your own dependencies. This package no longer
+installs them for you.
 
-### 1.0.6
+## More
 
-- Security: Upgrade `canvas` to `^3.2.1` to address security vulnerability
+- [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md)
+- Questions and bugs: [GitHub issues](https://github.com/Textopian/react-d3-cloud-modern/issues)
 
-### 1.0.5
+Built on [d3-cloud](https://github.com/jasondavies/d3-cloud) by Jason Davies
+and [react-d3-cloud](https://github.com/Yoctol/react-d3-cloud) by Yoctol.
+Maintained by [Textopian](https://app.textopian.com), which uses it in
+production.
 
-- Update `js-yaml` to address security vulnerability
-
-### 1.0.4
-
-- React 19 compatibility improvements
-
-### 1.0.3
-
-- Update `@testing-library/react` to v16.3.0
-- Update `@types/react` to v19.1.8
-- Fix Jest configuration
-
-### 1.0.2
-
-- Fix TypeScript error in useRef hook
-- Improve type safety
-
-### 1.0.1
-
-- Initial release as fork
-- Modernized dependencies
-- TypeScript improvements
+MIT licensed.

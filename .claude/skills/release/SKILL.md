@@ -25,7 +25,7 @@ The npm connection cannot be edited, only deleted and recreated. Renaming
 
 1. **Release PR.** Bump `version` in `package.json` (`npm version X.Y.Z
 --no-git-tag-version`; `preversion` runs the tests). Add a changelog entry
-   in `README.md` and move "(Latest)" to it. Run `npm run check`, `npm test`,
+   to `CHANGELOG.md` and move "(Latest)" to it. Run `npm run check`, `npm test`,
    `npm run build`, and `npm run prettier:check`. Open the PR, then get it
    merged. Merge only when the user says so; a request to publish counts.
 2. **Trigger the release** on `main` with the GitHub MCP tool:
