@@ -5,13 +5,14 @@ import {
   render,
   screen,
 } from '@testing-library/react';
+import { expect, it, vi } from 'vitest';
 
 import WordCloud, { Word } from '../WordCloud';
 
 const data = [
-  { text: 'Hey', value: 1 },
-  { text: 'Ok', value: 5 },
-  { text: 'Cool', value: 10 },
+  { text: 'Hey', value: 100 },
+  { text: 'Ok', value: 500 },
+  { text: 'Cool', value: 1000 },
 ];
 
 function renderInStrictMode(ui: React.ReactElement): RenderResult {
@@ -32,8 +33,8 @@ it('should render correct words after re-render', async () => {
   const { rerender } = renderInStrictMode(<WordCloud data={data} />);
 
   const newData = [
-    { text: 'New', value: 1 },
-    { text: 'World', value: 5 },
+    { text: 'New', value: 100 },
+    { text: 'World', value: 500 },
   ];
   rerender(<WordCloud data={newData} />);
 
@@ -60,15 +61,15 @@ it('should render with custom font', async () => {
 });
 
 it('should render with custom fontStyle', async () => {
-  const fontStyle = 'bold';
+  const fontStyle = 'italic';
 
   renderInStrictMode(<WordCloud data={data} fontStyle={fontStyle} />);
 
   await screen.findByText('Hey');
 
-  expect(screen.getByText('Hey')).toHaveStyle('font-style: bold');
-  expect(screen.getByText('Ok')).toHaveStyle('font-style: bold');
-  expect(screen.getByText('Cool')).toHaveStyle('font-style: bold');
+  expect(screen.getByText('Hey')).toHaveStyle('font-style: italic');
+  expect(screen.getByText('Ok')).toHaveStyle('font-style: italic');
+  expect(screen.getByText('Cool')).toHaveStyle('font-style: italic');
 });
 
 it('should render with custom fontWeight', async () => {
@@ -84,15 +85,15 @@ it('should render with custom fontWeight', async () => {
 });
 
 it('should render with custom fontSize', async () => {
-  const fontSize = (d: Word) => d.value * 2;
+  const fontSize = (d: Word) => d.value / 10;
 
   renderInStrictMode(<WordCloud data={data} fontSize={fontSize} />);
 
   await screen.findByText('Hey');
 
-  expect(screen.getByText('Hey')).toHaveStyle('font-size: 2px');
-  expect(screen.getByText('Ok')).toHaveStyle('font-size: 10px');
-  expect(screen.getByText('Cool')).toHaveStyle('font-size: 20px');
+  expect(screen.getByText('Hey')).toHaveStyle('font-size: 10px');
+  expect(screen.getByText('Ok')).toHaveStyle('font-size: 50px');
+  expect(screen.getByText('Cool')).toHaveStyle('font-size: 100px');
 });
 
 it('should render with custom rotate', async () => {
@@ -129,7 +130,7 @@ it('should render with custom fill', async () => {
 });
 
 it('should support click handler', async () => {
-  const onWordClick = jest.fn();
+  const onWordClick = vi.fn();
 
   renderInStrictMode(<WordCloud data={data} onWordClick={onWordClick} />);
 
@@ -137,11 +138,11 @@ it('should support click handler', async () => {
 
   fireEvent.click(screen.getByText('Hey'));
 
-  expect(onWordClick).toBeCalled();
+  expect(onWordClick).toHaveBeenCalled();
 });
 
 it('should support mouse over handler', async () => {
-  const onWordMouseOver = jest.fn();
+  const onWordMouseOver = vi.fn();
 
   renderInStrictMode(
     <WordCloud data={data} onWordMouseOver={onWordMouseOver} />
@@ -151,11 +152,11 @@ it('should support mouse over handler', async () => {
 
   fireEvent.mouseOver(screen.getByText('Hey'));
 
-  expect(onWordMouseOver).toBeCalled();
+  expect(onWordMouseOver).toHaveBeenCalled();
 });
 
 it('should support mouse out handler', async () => {
-  const onWordMouseOut = jest.fn();
+  const onWordMouseOut = vi.fn();
 
   renderInStrictMode(<WordCloud data={data} onWordMouseOut={onWordMouseOut} />);
 
@@ -163,5 +164,5 @@ it('should support mouse out handler', async () => {
 
   fireEvent.mouseOut(screen.getByText('Hey'));
 
-  expect(onWordMouseOut).toBeCalled();
+  expect(onWordMouseOut).toHaveBeenCalled();
 });

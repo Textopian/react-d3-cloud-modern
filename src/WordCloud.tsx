@@ -1,10 +1,8 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import ReactFauxDom from 'react-faux-dom';
 import cloud from 'd3-cloud';
 import isDeepEqual from 'react-fast-compare';
 import { BaseType, ValueFn, select } from 'd3-selection';
-import { scaleOrdinal } from 'd3-scale';
-import { schemeCategory10 } from 'd3-scale-chromatic';
 
 interface Datum {
   text: string;
@@ -23,9 +21,7 @@ type WordCloudProps = {
   font?: string | ((word: Word, index: number) => string);
   fontStyle?: string | ((word: Word, index: number) => string);
   fontWeight?:
-    | string
-    | number
-    | ((word: Word, index: number) => string | number);
+    string | number | ((word: Word, index: number) => string | number);
   fontSize?: number | ((word: Word, index: number) => number);
   rotate?: number | ((word: Word, index: number) => number);
   spiral?:
@@ -40,7 +36,19 @@ type WordCloudProps = {
   onWordMouseOut?: (this: BaseType, event: any, d: Word) => void;
 };
 
-const defaultScaleOrdinal = scaleOrdinal(schemeCategory10);
+// d3's schemeCategory10, inlined so the default fill doesn't pull in d3-scale.
+const defaultColors = [
+  '#1f77b4',
+  '#ff7f0e',
+  '#2ca02c',
+  '#d62728',
+  '#9467bd',
+  '#8c564b',
+  '#e377c2',
+  '#7f7f7f',
+  '#bcbd22',
+  '#17becf',
+];
 
 function WordCloud({
   data,
@@ -55,14 +63,12 @@ function WordCloud({
   spiral = 'archimedean',
   padding = 1,
   random = Math.random,
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore The ordinal function should accept number
-  fill = (_, i) => defaultScaleOrdinal(i),
+  fill = (_, i) => defaultColors[i % defaultColors.length]!,
   onWordClick,
   onWordMouseOver,
   onWordMouseOut,
 }: WordCloudProps) {
-  const elementRef = useRef<ReactFauxDom.Element | null>(null);
+  const elementRef = React.useRef<ReactFauxDom.Element | null>(null);
 
   if (!elementRef.current) {
     elementRef.current = ReactFauxDom.createElement('div');
