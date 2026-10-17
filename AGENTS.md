@@ -310,14 +310,16 @@ in the changelog so downstream repos can prioritize correctly.
    - Use conventional commit format
    - Example: `chore: bump version to X.Y.Z`
 
-3. **Publish**
-   - Run `npm publish`
-   - The `prepublishOnly` hook automatically runs build
+3. **Publish** (after the release PR is merged; see Ordering)
+   - Tag the merge commit on `main` and push the tag:
+     `git tag vX.Y.Z origin/main && git push origin vX.Y.Z`
+   - `.github/workflows/publish.yml` then checks that the tag matches
+     `package.json` and that the version isn't already on npm. It runs
+     `check`, the tests and `prettier:check`, publishes with npm Trusted
+     Publishing, and creates the GitHub release with generated notes
    - Verify on npmjs.com
 
 4. **Post-publish**
-   - Tag release in git
-   - Update GitHub releases
    - Close related issues
 
 ### Ordering
@@ -327,13 +329,33 @@ branch leaves `main` without the released version and makes the `vX.Y.Z` tag
 point at a commit that is not on `main`. Merging first is also what closes the
 Dependabot alerts, which are counted against the default branch.
 
-### Publishing From An Agent Sandbox
+### Trusted Publishing (the normal path)
 
-Cloud/CI agent containers have **no npm credentials** (`npm whoami` →
-`ENEEDAUTH`, no `~/.npmrc`, no `NPM_TOKEN`), and this repo has **no
-`.github/workflows/`**, so there is no CI release path either. The registry
-itself _is_ reachable through the proxy — `npm view`, `npm install`, and
-`npm publish --dry-run` all work. Only auth is missing.
+Publishing runs in GitHub Actions through npm Trusted Publishing (OIDC). No
+npm token exists anywhere, and an agent never needs npm credentials: pushing a
+`vX.Y.Z` tag is the whole release. npmjs.com trusts exactly one workflow:
+
+- Package Settings → Trusted publishing → GitHub Actions
+- Organization or user: `Textopian`, repository: `react-d3-cloud-modern`,
+  workflow filename: `publish.yml`, environment: blank
+
+Renaming or moving the workflow file breaks publishing until that setting is
+updated. Trusted Publishing needs npm ≥ 11.5.1, so keep the workflow on
+Node 24+. Third-party actions are pinned to commit SHAs. When bumping one,
+resolve the new tag with `git ls-remote --tags https://github.com/<owner>/<repo>`.
+
+If a publish run fails after the tag is pushed, fix the cause on `main`. Then
+either re-run the job (if the tagged commit is still the right one) or delete
+and re-push the tag. The workflow refuses to publish a version that is
+already on npm, so re-running is safe.
+
+### Manual Publishing (fallback)
+
+Use this only if the workflow is unavailable. Cloud/CI agent containers have
+**no npm credentials** (`npm whoami` → `ENEEDAUTH`, no `~/.npmrc`, no
+`NPM_TOKEN`). The registry itself _is_ reachable through the proxy:
+`npm view`, `npm install`, and `npm publish --dry-run` all work. Only auth is
+missing.
 
 Two ways to close that gap, in order of preference:
 
@@ -347,7 +369,9 @@ Two ways to close that gap, in order of preference:
    It emits `https://www.npmjs.com/login?next=/login/cli/<uuid>`. A maintainer
    opens that on a machine already signed in to npm and approves; the sandbox
    receives a 2FA-satisfied token and can publish. The link is single-use and
-   expires when the polling process exits.
+   expires when the polling process exits, which in practice happens after
+   only a few minutes. So send the link only when the maintainer is ready to
+   approve it.
 
    Gotcha: `npm login | head` swallows the URL — the pipe buffers it and the
    command blocks. Redirect to a file and background it instead:

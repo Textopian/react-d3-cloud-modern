@@ -1,0 +1,60 @@
+# Publishes to npm when a vX.Y.Z tag is pushed, using npm Trusted Publishing
+# (OIDC): no npm token is stored anywhere. npmjs.com must list this workflow
+# under the package's Settings -> Trusted publishing. See AGENTS.md.
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the GitHub release
+      id-token: write # npm Trusted Publishing
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          # Trusted Publishing needs npm >= 11.5.1, which Node 24 ships.
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Check tag matches package.json and is unpublished
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $version"
+            exit 1
+          fi
+          if npm view "react-d3-cloud-modern@$version" version >/dev/null 2>&1; then
+            echo "::error::react-d3-cloud-modern@$version is already on npm"
+            exit 1
+          fi
+          npm --version
+
+      # --ignore-scripts skips canvas's native install; rebuild fetches its
+      # prebuilt binary, which the tests need.
+      - run: npm ci --ignore-scripts
+      - run: npm rebuild canvas
+      - run: npm run check
+      - run: npm test
+      - run: npm run prettier:check
+
+      # prepublishOnly runs the build.
+      - run: npm publish
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes --title "$GITHUB_REF_NAME"
