@@ -5,7 +5,7 @@ This document provides context and guidelines for AI agents working on the `reac
 ## Project Overview
 
 **Package Name:** `react-d3-cloud-modern`
-**Current Version:** 1.1.1
+**Current Version:** 1.2.0
 **Type:** React component library
 **Purpose:** A modern, security-focused word cloud component for React applications
 
@@ -298,7 +298,12 @@ in the changelog so downstream repos can prioritize correctly.
    - Replacing it means rendering the `d3-cloud` layout as React elements
      directly (which would also drop `d3-selection`). That changes how `fill`
      and the event handlers get their d3-style `this`, so plan it as its own
-     minor release
+     release
+   - Today `this` inside handlers and `fill` is react-faux-dom's virtual
+     node, not a DOM element. `event` is the native DOM event, and
+     `event.target` is the real `<text>`. The public types deliberately
+     declare no `this`. Typing it `unknown` would break consumers who
+     annotated `this`
 
 2. **Test Suite**
    - Vitest suite in `src/__tests__/` runs via `npm test`
@@ -335,10 +340,19 @@ in the changelog so downstream repos can prioritize correctly.
      The README's "Keep the layout steady" recipe covers it. Keep any new
      examples consistent with it (stable functions or `useCallback`)
 
-7. **`Word` type is not exported from the package entry**
-   - `src/index.ts` exports only the default component, so consumers derive
-     types with `ComponentProps<typeof WordCloud>` (README "TypeScript").
-     Exporting `Word`/props types would be a small, worthwhile minor release
+7. **Public types must be self-contained** (fixed in 1.2.0)
+   - `@types/d3-cloud` and `@types/d3-selection` are dev dependencies, so
+     consumers don't have them. Up to 1.1.1, the published `.d.ts` imported
+     from them, and consumers silently lost `Word`'s layout fields and the
+     `fill`/handler types. Keep every exported type defined in this package,
+     and import only `react` in declarations. CI's "Published types import
+     only React" step enforces it
+   - Don't fix this by moving `@types/d3-cloud` into `dependencies`: it pulls
+     in `@types/d3@^3`
+   - The entry exports `WordCloudProps` and `Word` (type-only). Verify
+     consumer typing from a packed tarball in a scratch project with only
+     `@types/react`, without `skipLibCheck`, under `bundler`, `node16`
+     (`.mts` and `.cts`) and `node10`
 
 ## README and the npm Listing
 

@@ -1,15 +1,21 @@
 import React from 'react';
-import cloud from 'd3-cloud';
-import { BaseType, ValueFn } from 'd3-selection';
 interface Datum {
     text: string;
     value: number;
 }
-export interface Word extends cloud.Word {
-    text: string;
-    value: number;
+/** A word as accessors and handlers see it: your datum plus layout fields. */
+export interface Word extends Datum {
+    font?: string;
+    style?: string;
+    weight?: string | number;
+    rotate?: number;
+    size?: number;
+    padding?: number;
+    x?: number;
+    y?: number;
 }
-type WordCloudProps = {
+type WordHandler = (event: any, word: Word) => void;
+export type WordCloudProps = {
     data: Datum[];
     width?: number;
     height?: number;
@@ -21,10 +27,10 @@ type WordCloudProps = {
     spiral?: 'archimedean' | 'rectangular' | ((size: [number, number]) => (t: number) => [number, number]);
     padding?: number | ((word: Word, index: number) => number);
     random?: () => number;
-    fill?: ValueFn<SVGTextElement, Word, string>;
-    onWordClick?: (this: BaseType, event: any, d: Word) => void;
-    onWordMouseOver?: (this: BaseType, event: any, d: Word) => void;
-    onWordMouseOut?: (this: BaseType, event: any, d: Word) => void;
+    fill?: (word: Word, index: number) => string;
+    onWordClick?: WordHandler;
+    onWordMouseOver?: WordHandler;
+    onWordMouseOut?: WordHandler;
 };
 declare function WordCloud({ data, width, height, font, fontStyle, fontWeight, fontSize, rotate, spiral, padding, random, fill, onWordClick, onWordMouseOver, onWordMouseOut, }: WordCloudProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>;
 declare const _default: React.MemoExoticComponent<typeof WordCloud>;

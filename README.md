@@ -249,17 +249,34 @@ export default function Cloud({ words }) {
 
 ### TypeScript
 
-Types ship with the package. To type your own props or helpers, take them
-from the component:
+Types ship with the package, and there's nothing else to install.
+`WordCloudProps` describes the props. `Word` is what accessors and handlers
+receive: your `{ text, value }` plus the layout fields (`size`, `x`, `y`,
+`rotate`, `font`, …).
 
 ```tsx
-import type { ComponentProps } from 'react';
-import WordCloud from 'react-d3-cloud-modern';
+import WordCloud, {
+  type Word,
+  type WordCloudProps,
+} from 'react-d3-cloud-modern';
 
-type WordCloudProps = ComponentProps<typeof WordCloud>;
-type Word = WordCloudProps['data'][number]; // { text: string; value: number }
+const words: WordCloudProps['data'] = [
+  { text: 'typed', value: 2500 },
+  { text: 'safe', value: 900 },
+];
 
-const words: Word[] = [{ text: 'typed', value: 900 }];
+const fontSize = (word: Word) => Math.sqrt(word.value) * 1.5;
+
+const onWordClick: WordCloudProps['onWordClick'] = (event, word) => {
+  const element = event.target as SVGTextElement; // the clicked <text>
+  console.log(word.text, 'at', word.x, word.y, element.getBBox().width);
+};
+
+export default function App() {
+  return (
+    <WordCloud data={words} fontSize={fontSize} onWordClick={onWordClick} />
+  );
+}
 ```
 
 ## API
@@ -284,7 +301,7 @@ layout fields d3-cloud adds (`size`, `x`, `y`, `rotate`, `font`, …).
 | `padding`         | `number \| (word, i) => number`                             | `1`                                        | Space around each word, in px.                                                                                        |
 | `random`          | `() => number`                                              | `Math.random`                              | Random source in `[0, 1)` for starting positions and spiral direction. Pass a seeded one for repeatable layouts.      |
 | `fill`            | `(word, i) => string`                                       | d3's 10-color `schemeCategory10`, by index | Word color.                                                                                                           |
-| `onWordClick`     | `(event, word) => void`                                     | none                                       | Called when a word is clicked. `this` is the `<text>` element.                                                        |
+| `onWordClick`     | `(event, word) => void`                                     | none                                       | Called when a word is clicked. `event` is the native DOM event; `event.target` is the word's `<text>` element.        |
 | `onWordMouseOver` | `(event, word) => void`                                     | none                                       | Called when the pointer enters a word.                                                                                |
 | `onWordMouseOut`  | `(event, word) => void`                                     | none                                       | Called when the pointer leaves a word.                                                                                |
 

@@ -5,9 +5,13 @@ import {
   render,
   screen,
 } from '@testing-library/react';
-import { expect, it, vi } from 'vitest';
+import { expect, expectTypeOf, it, vi } from 'vitest';
 
 import WordCloud, { Word } from '../WordCloud';
+import PackageWordCloud, {
+  type Word as PackageWord,
+  type WordCloudProps,
+} from '../index.js';
 
 const data = [
   { text: 'Hey', value: 100 },
@@ -165,4 +169,17 @@ it('should support mouse out handler', async () => {
   fireEvent.mouseOut(screen.getByText('Hey'));
 
   expect(onWordMouseOut).toHaveBeenCalled();
+});
+
+it('exports the component and its types from the package entry', () => {
+  expect(PackageWordCloud).toBe(WordCloud);
+
+  expectTypeOf<WordCloudProps['data']>().toEqualTypeOf<
+    { text: string; value: number }[]
+  >();
+  expectTypeOf<PackageWord>().toEqualTypeOf<Word>();
+  expectTypeOf<PackageWord>().toHaveProperty('size');
+  expectTypeOf<WordCloudProps['fontSize']>().toEqualTypeOf<
+    number | ((word: Word, index: number) => number) | undefined
+  >();
 });

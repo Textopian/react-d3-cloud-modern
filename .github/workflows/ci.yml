@@ -43,6 +43,14 @@ jobs:
       - run: npm run build
       - name: Committed lib/ matches the build
         run: git diff --exit-code -- lib
+      # Consumers don't install our @types/* dev dependencies, so the
+      # published declarations may only import React and our own files.
+      - name: Published types import only React
+        run: |
+          if grep -nE "^import .* from '[^.r]|from '(d3-|@types/)" lib/*.d.ts lib/esm/*.d.ts; then
+            echo "::error::lib/*.d.ts imports from a package consumers may not have"
+            exit 1
+          fi
 
   compat:
     name: Rendering on React 16.8–19 (CJS + ESM)
