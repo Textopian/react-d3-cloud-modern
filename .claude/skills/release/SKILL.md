@@ -50,7 +50,11 @@ The npm connection cannot be edited, only deleted and recreated. Renaming
    - `git ls-remote origin refs/tags/vX.Y.Z` returns the merge commit.
    - `https://github.com/Textopian/react-d3-cloud-modern/releases/tag/vX.Y.Z`
      exists.
-5. **Downstream.** Bump consumers, such as the Textopian app in
+5. **Deprecate superseded versions** when consumers should move (see
+   "Supported Versions and Deprecation" in `AGENTS.md`). Only the maintainer
+   can run `npm deprecate`, locally; give them the exact command, then verify
+   the `deprecated` fields through the registry.
+6. **Downstream.** Bump consumers, such as the Textopian app in
    `Textopian/textopian`. Adding that repo to a cloud session needs the user's
    explicit go-ahead: the auto-permission classifier blocks `add_repo` as a
    permission grant. Ask; don't retry.
