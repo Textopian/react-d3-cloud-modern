@@ -44,6 +44,7 @@ react-d3-cloud-modern/
 ├── tsconfig.build.json       # TypeScript build configuration
 ├── vitest.config.mjs         # Vitest configuration
 ├── .github/workflows/
+│   ├── ci.yml                # PR/main checks (GitHub-hosted runners)
 │   └── publish.yml           # npm release (Trusted Publishing)
 └── .claude/skills/           # Agent skills: release, dependency-refresh
 ```
@@ -310,6 +311,22 @@ in the changelog so downstream repos can prioritize correctly.
    - Only needed for SSR/testing, not end users
    - `canvas@3` ships prebuilt binaries; with `npm ci --ignore-scripts`, run
      `npm rebuild canvas` before `npm test`
+
+## Continuous Integration
+
+`.github/workflows/ci.yml` runs on every pull request and every push to
+`main`, on GitHub-hosted runners (free, because the repo is public):
+
+- **Test (React 18 / 19):** `check`, `test`, `prettier:check`, `build`, and
+  a check that the committed `lib/` matches a fresh build. Commit the
+  regenerated `lib/` whenever the build output changes.
+- **Rendering on React 16.8–19:** the `dependency-refresh` skill's
+  `ssr-smoke.sh`, which byte-compares rendered markup with the latest
+  published version. A PR that changes rendering on purpose fails this job.
+  Call that out in the PR and compare the output by eye.
+
+Do not move CI to a self-hosted runner: on a public repo, pull requests from
+forks could run code on that machine.
 
 ## Release Process
 
