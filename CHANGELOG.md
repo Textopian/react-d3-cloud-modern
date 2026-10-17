@@ -16,6 +16,8 @@ All notable changes to `react-d3-cloud-modern`. Versions follow [semantic versio
   library's internal virtual node, not the DOM element. Use `event.target`
   to reach the word's `<text>` element; `event` is the native DOM event.
 - No runtime changes: the JavaScript in `lib/` is identical to 1.1.1.
+- Support: All earlier versions (1.0.0–1.1.1) are deprecated on npm in favor
+  of 1.2.0.
 
 ## 1.1.1
 

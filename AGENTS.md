@@ -461,6 +461,38 @@ branch leaves `main` without the released version and makes the `vX.Y.Z` tag
 point at a commit that is not on `main`. Merging first is also what closes the
 Dependabot alerts, which are counted against the default branch.
 
+### Supported Versions and Deprecation
+
+Only the latest minor line is supported. On 2026-10-17 every version below
+1.2.0 (1.0.0–1.1.1, 18 versions) was deprecated with:
+
+> Superseded by 1.2.0: fewer dependencies, fixed TypeScript types, React
+> 16.8–19. Upgrade with: npm install react-d3-cloud-modern@^1.2.0
+
+- **Deprecate, don't unpublish.** Deprecation warns on install and on
+  npmjs.com but keeps old lockfiles working, and it is reversible (run the
+  same command with an empty message, `""`). Unpublishing is permanent, breaks
+  any consumer still pinned to the version, and npm restricts it after 72
+  hours anyway.
+- **When to repeat it:** after a release that consumers should move to (a new
+  minor line with fixes, or a major), once the release is verified on npm. Use
+  the same command with the new floor, e.g.
+  `npm deprecate react-d3-cloud-modern@"<2.0.0" "Superseded by 2.0.0: …"`.
+  Never deprecate the version `latest` points to, and don't use npmjs.com's
+  "Deprecate package" button, which deprecates every version.
+- **Who can run it:** only the maintainer, from a machine logged in to npm.
+  The Trusted Publishing token can only publish, and cloud sessions have no
+  npm credentials. If `npm deprecate` lists the versions and then fails with
+  `E404 … PUT`, the machine isn't logged in (`npm whoami` → `ENEEDAUTH`). Run
+  `npm login`, then re-run it and approve the 2FA prompt it opens in the
+  browser.
+- **Verify** through the registry: every version below the floor has a
+  `deprecated` field, and `latest` doesn't.
+- **Consumers:** the only known one is the Textopian app
+  (`Textopian/textopian`). Its upgrade to `^1.2.0` was started in a separate
+  session on 2026-10-17. It should show exactly one copy of the package, at
+  1.2.x (`npm ls react-d3-cloud-modern`).
+
 ### Trusted Publishing (the normal path)
 
 Publishing runs in GitHub Actions through npm Trusted Publishing (OIDC). No
