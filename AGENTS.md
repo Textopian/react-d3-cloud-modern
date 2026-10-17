@@ -5,11 +5,12 @@ This document provides context and guidelines for AI agents working on the `reac
 ## Project Overview
 
 **Package Name:** `react-d3-cloud-modern`
-**Current Version:** 1.0.17
+**Current Version:** 1.1.0
 **Type:** React component library
 **Purpose:** A modern, security-focused word cloud component for React applications
 
 This is a maintained fork of [Yoctol/react-d3-cloud](https://github.com/Yoctol/react-d3-cloud) with the primary goals of:
+
 1. Addressing security vulnerabilities in dependencies
 2. Providing React 19 compatibility
 3. Maintaining modern TypeScript standards
@@ -21,46 +22,53 @@ react-d3-cloud-modern/
 ├── src/
 │   ├── index.ts              # Main entry point, exports WordCloud component
 │   ├── WordCloud.tsx         # Core component implementation
-│   └── __tests__/            # Test files
+│   └── __tests__/            # Vitest test files
 ├── lib/                      # Build output (CommonJS)
-│   └── esm/                  # Build output (ES Modules)
+│   └── esm/                  # Build output (ES Modules; has its own
+│                             #   package.json with "type": "module")
 ├── test/
-│   └── jest-setup.ts         # Jest configuration
+│   └── setup.ts              # Vitest setup (jest-dom matchers, cleanup)
 ├── package.json              # Dependencies and scripts
-├── tsconfig.json             # TypeScript configuration
+├── tsconfig.json             # TypeScript configuration (type check)
 ├── tsconfig.build.json       # TypeScript build configuration
-└── babel.config.js           # Babel configuration
+└── vitest.config.mjs         # Vitest configuration
 ```
 
 ## Core Technologies
 
 - **React:** Supports versions 16.8+ through 19.x
-- **D3.js:** Uses d3-cloud, d3-scale, d3-selection, d3-scale-chromatic
+- **D3.js:** Uses d3-cloud and d3-selection only
 - **TypeScript:** Strict mode enabled with comprehensive type checking
-- **Build Tools:** Babel (transpilation), TypeScript (type generation)
+- **Build Tools:** TypeScript (`tsc`) emits both JS and type declarations; there is no Babel
+- **Tests:** Vitest + jsdom + Testing Library
 - **Module Formats:** Dual-package (CommonJS + ESM)
 
 ## Key Dependencies
 
 ### Runtime Dependencies
-- `d3-cloud@^1.2.7` - Core word cloud layout algorithm
-- `d3-scale@^4.0.2` - Scaling functions
+
+- `d3-cloud@^1.2.9` - Core word cloud layout algorithm
 - `d3-selection@^3.0.0` - DOM manipulation
 - `react-faux-dom@^4.5.0` - Server-side rendering support
-- `react-fast-compare@^3.2.0` - Deep equality checks for memo optimization
+- `react-fast-compare@^3.2.2` - Deep equality checks for memo optimization
+
+The default `fill` palette is d3's `schemeCategory10`, inlined in
+`WordCloud.tsx` so the package does not need `d3-scale`/`d3-scale-chromatic`.
+Keep the runtime list this small; every entry ships to consumers.
 
 ### Development Dependencies
-- `typescript@^4.4.2` - Type system
-- `@babel/cli`, `@babel/core` - Build pipeline
-- `jest@^27.0.6` - Testing framework
-- `eslint@^7.32.0` - Linting (currently skipped; see Known Issues)
-- `canvas@^3.2.1` - Native canvas for SSR (dev dependency)
+
+- `typescript@^7` - Type checking and the build
+- `vitest`, `jsdom`, `@testing-library/*` - Tests
+- `canvas@^3` - Native canvas so `d3-cloud` can measure text under jsdom
+- `prettier@^3` - Formatting
 
 ## Component Architecture
 
 ### WordCloud Component (`src/WordCloud.tsx`)
 
 **Key Implementation Details:**
+
 - Uses `react-faux-dom` for creating virtual DOM elements
 - Leverages `d3-cloud` for word positioning algorithm
 - Wrapped with `React.memo()` and `react-fast-compare` for performance
@@ -68,6 +76,7 @@ react-d3-cloud-modern/
 - Provides event handlers for click, mouseover, and mouseout
 
 **Props Interface:**
+
 ```typescript
 interface WordCloudProps {
   data: { text: string; value: number }[];
@@ -75,10 +84,14 @@ interface WordCloudProps {
   height?: number;
   font?: string | ((word: Word, index: number) => string);
   fontStyle?: string | ((word: Word, index: number) => string);
-  fontWeight?: string | number | ((word: Word, index: number) => string | number);
+  fontWeight?:
+    string | number | ((word: Word, index: number) => string | number);
   fontSize?: number | ((word: Word, index: number) => number);
   rotate?: number | ((word: Word, index: number) => number);
-  spiral?: 'archimedean' | 'rectangular' | ((size: [number, number]) => (t: number) => [number, number]);
+  spiral?:
+    | 'archimedean'
+    | 'rectangular'
+    | ((size: [number, number]) => (t: number) => [number, number]);
   padding?: number | ((word: Word, index: number) => number);
   random?: () => number;
   fill?: ValueFn<SVGTextElement, Word, string>;
@@ -91,22 +104,31 @@ interface WordCloudProps {
 ## Build System
 
 ### NPM Scripts
+
 - `npm run build` - Full build (clean + CJS + ESM)
 - `npm run build:cjs` - Build CommonJS output to `lib/`
-- `npm run build:esm` - Build ES Modules output to `lib/esm/`
-- `npm run check` - TypeScript type checking (no emit)
-- `npm test` - Currently skips tests (placeholder)
+- `npm run build:esm` - Build ES Modules output to `lib/esm/` (and write its `{"type":"module"}` marker)
+- `npm run check` - TypeScript type checking of `src/` and `test/` (no emit)
+- `npm test` - Run the Vitest suite once (`npm run test:watch` to watch)
 - `npm run clean` - Remove build artifacts
 - `npm run prettier` - Format code
 - `npm publish` - Publish to npm (runs prepublishOnly hook)
 
 ### Build Pipeline
+
 1. Clean previous build artifacts
-2. Babel transpiles TypeScript files to JavaScript
-3. TypeScript compiler generates type declarations (.d.ts)
-4. Output generated for both CommonJS and ESM formats
+2. `tsc` emits CommonJS JS + `.d.ts` to `lib/`
+3. `tsc` emits ES module JS + `.d.ts` to `lib/esm/`, then a
+   `lib/esm/package.json` marks that folder `"type": "module"` so Node loads it
+   as ESM
+
+Relative imports in `src/` must carry a `.js` extension (`'./WordCloud.js'`)
+because Node's ESM loader does not guess extensions. Import React as a default
+import and use `React.useRef` etc.: React 16/17 are CommonJS, and Node cannot
+detect their named exports from an ES module.
 
 ### Package Exports
+
 ```json
 "exports": {
   "import": "./lib/esm/index.js",
@@ -117,32 +139,25 @@ interface WordCloudProps {
 ## Security Practices
 
 This project prioritizes security through:
+
 1. **Regular dependency updates** - Actively monitors and addresses Dependabot alerts
 2. **Dependency overrides** - Uses package.json overrides for transitive dependencies
 3. **Minimal attack surface** - Small, focused codebase with limited dependencies
 
 ### Current Overrides
 
-All are transitive **dev** dependencies. Keep this block in sync with
-`package.json` — it was stale for several releases.
-
-```json
-"overrides": {
-  "@babel/plugin-transform-modules-systemjs": "7.29.4",
-  "@tootallnate/once": "^3.0.1",
-  "brace-expansion": "^1.1.18",
-  "canvas": "^3.2.1",
-  "fast-uri": "^3.1.6",
-  "form-data": "^3.0.5",
-  "js-yaml": "^3.15.2",
-  "ws": "^7.5.11"
-}
-```
+None. As of 1.1.0 the dev toolchain was rebuilt (TypeScript-only build,
+Vitest instead of Jest 27, the unconfigured ESLint stack removed), which took
+`npm audit` from 48 findings to 0 and made all eight previous overrides
+unnecessary. Before adding a new override, check whether upgrading the direct
+dependency that pulls in the vulnerable package fixes it instead.
 
 ## TypeScript Configuration
 
 ### Strict Mode Settings
+
 The project uses comprehensive TypeScript strict mode:
+
 - `strict: true`
 - `noImplicitAny: true`
 - `strictNullChecks: true`
@@ -152,7 +167,8 @@ The project uses comprehensive TypeScript strict mode:
 - `noUncheckedIndexedAccess: true`
 
 **Target:** ES2018
-**Module:** ES2015 (with CommonJS override for CJS build)
+**Module:** ES2015 for type checking; the build passes `--module commonjs` or `--module esnext`
+**Module resolution:** `bundler` (TypeScript 7 removed `node`/`node10`)
 **JSX:** React
 
 ## Development Guidelines for AI Agents
@@ -167,12 +183,16 @@ The project uses comprehensive TypeScript strict mode:
 
 2. **TypeScript Strictness**
    - Maintain all strict TypeScript settings
-   - Do not use `@ts-ignore` unless absolutely necessary (currently one instance)
+   - Do not use `@ts-ignore` unless absolutely necessary (currently none)
    - Ensure all types are properly defined
    - Run `npm run check` before committing
 
 3. **React Compatibility**
-   - Test changes against multiple React versions (16.8, 17, 18, 19)
+   - Test changes against multiple React versions (16.8, 17, 18, 19). The
+     Vitest suite covers 18 and 19 (`npm install --no-save react@18 react-dom@18`,
+     then `npm ci` to restore); for 16.8 and 17, `npm pack` and server-render the
+     tarball from a scratch project with a jsdom `document` global, through both
+     `require()` and `import()`
    - Maintain hooks best practices
    - Preserve memo optimization with deep equality checks
 
@@ -183,7 +203,6 @@ The project uses comprehensive TypeScript strict mode:
 
 5. **Code Style**
    - Use Prettier for formatting (`npm run prettier`)
-   - Follow ESLint rules (when running)
    - Maintain consistency with existing code patterns
 
 6. **Version Management**
@@ -200,6 +219,7 @@ The project uses comprehensive TypeScript strict mode:
 ### Common Tasks
 
 #### Addressing Dependabot Alerts
+
 1. Review the security advisory
 2. Check if direct or transitive dependency
 3. Update in `dependencies` or `devDependencies` if direct
@@ -210,13 +230,13 @@ The project uses comprehensive TypeScript strict mode:
 8. Commit with descriptive message
 
 **Re-check the existing overrides every time.** Advisory ranges widen over
-time, so an override added to *fix* a CVE can later become the thing pinning a
+time, so an override added to _fix_ a CVE can later become the thing pinning a
 package to a vulnerable version. In 1.0.16 both `fast-uri` (pinned to exactly
 `3.1.2`) and `js-yaml` (capped at `^3.15.0`) had drifted into the advisory
 ranges they were originally added to escape. Prefer a caret range over an exact
 pin unless an exact pin is genuinely required.
 
-**Pick the smallest in-range target.** Check what the *dependent* actually
+**Pick the smallest in-range target.** Check what the _dependent_ actually
 requires before choosing a version — a patched release usually exists inside
 the range already declared, which avoids dragging in a transitive major. For
 1.0.16: `minimatch` wanted `brace-expansion@^1.1.7` (→ `1.1.18`), `ajv@8`
@@ -230,6 +250,7 @@ version bump is hygiene rather than a security fix for downstream users. Say so
 in the changelog so downstream repos can prioritize correctly.
 
 #### Adding New Features
+
 1. Update TypeScript interfaces in `src/WordCloud.tsx`
 2. Implement feature while maintaining memo optimization
 3. Update README.md with new prop documentation
@@ -238,6 +259,7 @@ in the changelog so downstream repos can prioritize correctly.
 6. Bump version (minor for new features)
 
 #### Refactoring
+
 1. Maintain existing public API
 2. Preserve TypeScript strict mode compliance
 3. Run type checking and build
@@ -246,28 +268,34 @@ in the changelog so downstream repos can prioritize correctly.
 
 ## Known Issues & Considerations
 
-1. **@ts-ignore Comment** (line 58-60 in WordCloud.tsx)
-   - The ordinal scale function typing has a known issue
-   - Should accept numbers but TypeScript infers incorrectly
-   - Consider revisiting with d3 type updates
+1. **react-faux-dom is unmaintained**
+   - Last published in 2022; it pulls in `create-react-class`,
+     `hoist-non-react-statics`, `query-selector`, and `style-attr`
+   - It is now the bulk of the runtime dependency tree
+   - Replacing it means rendering the `d3-cloud` layout as React elements
+     directly (which would also drop `d3-selection`). That changes how `fill`
+     and the event handlers get their d3-style `this`, so plan it as its own
+     minor release
 
 2. **Test Suite**
-   - Currently tests are skipped (`echo 'Skipping tests'`)
-   - Full Jest configuration exists
-   - Testing-library is available but not actively used
-   - Future work: Enable and write comprehensive tests
+   - Vitest suite in `src/__tests__/` runs via `npm test`
+   - Keep test word values realistic (`value` ≥ ~100). The default `fontSize` is
+     `sqrt(value)`, and 1–3px text can rasterize to zero pixels at some random
+     rotations, which makes `d3-cloud` drop the word and the test flake
 
-3. **Lint Configuration**
-   - Linting is currently skipped
-   - ESLint 9.26+ is installed
-   - Configuration exists but may need updates
-   - Future work: Enable and fix linting
+3. **No Linter**
+   - The old ESLint 7 stack had no config file and was never run, so it was
+     removed in 1.1.0. Prettier is the only style tool
+   - If linting is reintroduced, use an ESLint 9+ flat config with
+     `typescript-eslint`
 
 4. **Node Canvas Dependency**
    - Requires native binaries (Cairo, Pango, etc.)
    - Installation instructions in README for Mac/Ubuntu
    - May cause issues in containerized environments
    - Only needed for SSR/testing, not end users
+   - `canvas@3` ships prebuilt binaries; with `npm ci --ignore-scripts`, run
+     `npm rebuild canvas` before `npm test`
 
 ## Release Process
 
@@ -294,7 +322,7 @@ in the changelog so downstream repos can prioritize correctly.
 
 ### Ordering
 
-Merge the release PR to `main` *before* publishing. Publishing from a feature
+Merge the release PR to `main` _before_ publishing. Publishing from a feature
 branch leaves `main` without the released version and makes the `vX.Y.Z` tag
 point at a commit that is not on `main`. Merging first is also what closes the
 Dependabot alerts, which are counted against the default branch.
@@ -304,7 +332,7 @@ Dependabot alerts, which are counted against the default branch.
 Cloud/CI agent containers have **no npm credentials** (`npm whoami` →
 `ENEEDAUTH`, no `~/.npmrc`, no `NPM_TOKEN`), and this repo has **no
 `.github/workflows/`**, so there is no CI release path either. The registry
-itself *is* reachable through the proxy — `npm view`, `npm install`, and
+itself _is_ reachable through the proxy — `npm view`, `npm install`, and
 `npm publish --dry-run` all work. Only auth is missing.
 
 Two ways to close that gap, in order of preference:
@@ -331,7 +359,7 @@ Two ways to close that gap, in order of preference:
 
 2. **Maintainer publishes locally.** Standard `npm publish` from a logged-in
    machine. Use `npm ci --ignore-scripts` if `canvas`'s native build fails —
-   the `prepublishOnly` build needs only Babel and TypeScript, never `canvas`.
+   the `prepublishOnly` build needs only TypeScript, never `canvas`.
 
 ## Useful Commands
 
@@ -374,5 +402,5 @@ npm list --depth=0
 
 ---
 
-*Last Updated: 2026-08-12*
-*Document Version: 1.0*
+_Last Updated: 2026-10-17_
+_Document Version: 1.0_

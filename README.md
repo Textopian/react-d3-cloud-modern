@@ -200,11 +200,15 @@ npm run build
 
 This will build both CommonJS (`lib/`) and ESM (`lib/esm/`) versions.
 
-### Run Tests
+### Type check and run tests
 
 ```sh
+npm run check
 npm test
 ```
+
+Tests run on [Vitest](https://vitest.dev/) with jsdom, and need the native
+`canvas` package (see below) because `d3-cloud` measures text on a canvas.
 
 ### Publish to NPM
 
@@ -216,7 +220,13 @@ _(Note: The `prepublishOnly` script will automatically run `npm run build` befor
 
 ## Development
 
+Requires Node.js 22.12+ for the development toolchain (consumers of the
+published package are unaffected).
+
 ### Pre-install (for `node-canvas` support)
+
+`canvas` ships prebuilt binaries for common platforms; these system libraries
+are only needed when npm has to compile it from source.
 
 #### Mac OS X
 
@@ -240,7 +250,30 @@ MIT © [Yoctol](https://github.com/Yoctol/react-d3-cloud)
 
 ## Changelog
 
-### 1.0.17 (Latest)
+### 1.1.0 (Latest)
+
+- Dependencies: Drop `d3-scale`, `d3-scale-chromatic`, and the unused
+  `prop-types` from runtime dependencies. The default `fill` palette (d3's
+  `schemeCategory10`) is now inlined, and rendered output is byte-identical to
+  1.0.17. A consumer install goes from 23 packages (3.5 MB) to 13 (1.4 MB).
+  If your app imports `d3-scale` for a custom `fill`, list it in your own
+  `dependencies`; it is no longer installed transitively.
+- Dependencies: Raise `d3-cloud` to `^1.2.9` and `react-fast-compare` to
+  `^3.2.2`.
+- Build: Compile with TypeScript only (Babel removed). `lib/esm` is now real
+  ES modules (previously it held CommonJS), so bundlers can tree-shake it.
+  Output targets ES2018 instead of ES5; `d3-selection@3` already required
+  ES2015+, so supported environments don't change. Type declarations are
+  unchanged.
+- Tooling: Replace Jest 27 with Vitest; the test suite, which had been
+  skipped because Jest could not load ESM-only `d3-selection`, now runs and
+  passes on React 18 and 19. Remove the unconfigured ESLint/husky/lint-staged
+  stack. `npm run check` now type-checks `src/` (it only covered the test setup
+  file before). Upgrade TypeScript to 7 and Prettier to 3.
+- Security: `npm audit` goes from 48 development-only findings to 0, and every
+  `overrides` entry is gone. `npm audit --omit=dev` was already clean.
+
+### 1.0.17
 
 - Security: Raise the transitive `fast-uri` override to `^3.1.6` and refresh
   `browserslist` to `4.28.7` within its existing dependency ranges, addressing

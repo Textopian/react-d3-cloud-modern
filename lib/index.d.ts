@@ -1,2 +1,2 @@
-import WordCloud from './WordCloud';
+import WordCloud from './WordCloud.js';
 export default WordCloud;
