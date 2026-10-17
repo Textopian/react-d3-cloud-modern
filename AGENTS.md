@@ -15,6 +15,15 @@ This is a maintained fork of [Yoctol/react-d3-cloud](https://github.com/Yoctol/r
 2. Providing React 19 compatibility
 3. Maintaining modern TypeScript standards
 
+## Skills (read these first for the matching task)
+
+- `.claude/skills/release/`: publish a version. Covers the Trusted
+  Publishing workflow, triggering it from a cloud session, verification, and
+  diagnosing a failed publish.
+- `.claude/skills/dependency-refresh/`: update or simplify dependencies and
+  prove consumers see no change. Its `scripts/ssr-smoke.sh` byte-compares
+  rendered markup with the published version on React 16.8–19, CJS and ESM.
+
 ## Project Structure
 
 ```
@@ -31,7 +40,10 @@ react-d3-cloud-modern/
 ├── package.json              # Dependencies and scripts
 ├── tsconfig.json             # TypeScript configuration (type check)
 ├── tsconfig.build.json       # TypeScript build configuration
-└── vitest.config.mjs         # Vitest configuration
+├── vitest.config.mjs         # Vitest configuration
+├── .github/workflows/
+│   └── publish.yml           # npm release (Trusted Publishing)
+└── .claude/skills/           # Agent skills: release, dependency-refresh
 ```
 
 ## Core Technologies
@@ -341,9 +353,21 @@ Publishing runs in GitHub Actions through npm Trusted Publishing (OIDC). No
 npm token exists anywhere, and an agent never needs npm credentials:
 triggering the workflow on `main` is the whole release. npmjs.com trusts exactly one workflow:
 
-- Package Settings → Trusted publishing → GitHub Actions
+- Package Settings → Trusted Publisher → GitHub Actions (label `gh-actions`)
 - Organization or user: `Textopian`, repository: `react-d3-cloud-modern`,
   workflow filename: `publish.yml`, environment: blank
+- Allowed actions: "Allow npm publish" on (hands-off releases), "Allow npm
+  dist-tag" off. Unchecking publish would switch to staged publishing, where
+  each release waits for a maintainer's approval on npmjs.com
+- The connection cannot be edited, only deleted and recreated
+
+The GitHub repo is **public**, which is what lets npm attach provenance to
+each release. First Trusted Publishing release: 1.1.0 (2026-10-17).
+
+After a successful run, the registry can take several minutes to show the
+new version ("Your package is being processed"). Poll before concluding
+anything failed. If `npm publish` fails with `E404`, the OIDC handshake
+failed; the `release` skill has a diagnostic that pinpoints which side.
 
 Renaming or moving the workflow file breaks publishing until that setting is
 updated. Trusted Publishing needs npm ≥ 11.5.1, so keep the workflow on
@@ -391,6 +415,22 @@ Two ways to close that gap, in order of preference:
 2. **Maintainer publishes locally.** Standard `npm publish` from a logged-in
    machine. Use `npm ci --ignore-scripts` if `canvas`'s native build fails —
    the `prepublishOnly` build needs only TypeScript, never `canvas`.
+
+## Cloud Agent Session Constraints
+
+These were observed in Claude Code cloud sessions on this repo:
+
+- **Git proxy:** pushing branches works. Pushing tags and deleting remote
+  branches both fail with "remote end hung up". Release via the workflow's
+  manual trigger, and ask the user to delete leftover branches.
+- **GitHub MCP:** it can merge PRs, trigger and inspect workflow runs, and
+  read job logs. It cannot create tags, change repository settings, or delete
+  branches.
+- **Other repos:** attaching another repository (e.g. `Textopian/textopian`
+  to bump this package downstream) is blocked by the auto-permission
+  classifier unless the user explicitly asks for it. Ask; don't retry.
+- **npm:** no credentials, and none needed. Don't send `npm login` links
+  unless the workflow path is unavailable.
 
 ## Useful Commands
 
