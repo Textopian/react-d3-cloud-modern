@@ -1,0 +1,37 @@
+# TEMPLATE for the branch-cleanup skill. Copy over .github/workflows/publish.yml
+# on a temporary branch (never merge it), fill in the branch=sha pairs, push,
+# then dispatch publish.yml with ref=claude/branch-cleanup. See ../SKILL.md.
+name: Publish
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    if: github.ref == 'refs/heads/claude/branch-cleanup'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete merged branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # branch=sha of the commit its PR merged; a branch that has moved
+          # since is skipped, not deleted.
+          for pair in \
+            example/merged-branch=0000000000000000000000000000000000000000
+          do
+            branch="${pair%%=*}"
+            expected="${pair#*=}"
+            actual="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$branch" --jq .object.sha 2>/dev/null || true)"
+            if [ "$actual" = "$expected" ]; then
+              gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$branch"
+              echo "deleted $branch"
+            else
+              echo "::warning::skipped $branch (expected $expected, found ${actual:-nothing})"
+            fi
+          done
+          gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/claude/branch-cleanup"
+          echo "deleted claude/branch-cleanup"

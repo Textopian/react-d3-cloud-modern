@@ -23,6 +23,8 @@ This is a maintained fork of [Yoctol/react-d3-cloud](https://github.com/Yoctol/r
 - `.claude/skills/dependency-refresh/`: update or simplify dependencies and
   prove consumers see no change. Its `scripts/ssr-smoke.sh` byte-compares
   rendered markup with the published version on React 16.8–19, CJS and ESM.
+- `.claude/skills/branch-cleanup/`: delete remote branches from a cloud
+  session (git can't), via a temporary self-deleting workflow run.
 
 ## Project Structure
 
@@ -422,10 +424,11 @@ These were observed in Claude Code cloud sessions on this repo:
 
 - **Git proxy:** pushing branches works. Pushing tags and deleting remote
   branches both fail with "remote end hung up". Release via the workflow's
-  manual trigger, and ask the user to delete leftover branches.
+  manual trigger. When the user asks for branches to be deleted, use the
+  `branch-cleanup` skill (a temporary, self-deleting workflow run).
 - **GitHub MCP:** it can merge PRs, trigger and inspect workflow runs, and
   read job logs. It cannot create tags, change repository settings, or delete
-  branches.
+  branches directly.
 - **Other repos:** attaching another repository (e.g. `Textopian/textopian`
   to bump this package downstream) is blocked by the auto-permission
   classifier unless the user explicitly asks for it. Ask; don't retry.
